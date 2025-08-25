@@ -1,0 +1,106 @@
+.warehouse-container {
+  background-color: #fefefe;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  max-width: 900px;
+  margin: 0 auto;
+  direction: rtl; /* راست چین */
+  text-align: right; /* متن راست چین */
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.header h2 {
+  color: #2c3e50;
+}
+
+.add-warehouse {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.add-warehouse input {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  width: 200px;
+  text-align: right;
+}
+
+.btn-add {
+  background-color: #1abc9c;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-add:hover {
+  background-color: #16a085;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.warehouse-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.warehouse-table th,
+.warehouse-table td {
+  padding: 12px 15px;
+  text-align: center;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.warehouse-table th {
+  background-color: #f1f1f1;
+  color: #2c3e50;
+}
+
+.warehouse-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.edit-input {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  width: 100%;
+  text-align: right;
+}
+
+/* دکمه ها */
+.warehouse-table button {
+  margin: 0 2px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  transition: 0.3s;
+}
+
+.btn-edit { background-color: #f1c40f; color: white; }
+.btn-edit:hover { background-color: #d4ac0d; }
+
+.btn-delete { background-color: #e74c3c; color: white; }
+.btn-delete:hover { background-color: #c0392b; }
+
+.btn-save { background-color: #1abc9c; color: white; }
+.btn-save:hover { background-color: #16a085; }
+
+.btn-cancel { background-color: #7f8c8d; color: white; }
+.btn-cancel:hover { background-color: #606060; }

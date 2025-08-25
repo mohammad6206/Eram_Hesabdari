@@ -1,0 +1,105 @@
+.dashboard-container {
+  display: flex;
+  flex-direction: row-reverse; /* این باعث می‌شود نوار سمت راست باشد */
+  height: 100vh;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f7fa;
+}
+
+
+/* نوار کناری */
+.dashboard-sidebar {
+  width: 80px;
+  background-color: #2f4050;
+  color: #ecf0f1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px 0;
+}
+
+/* آیکون ها و دکمه های نوار */
+.sidebar-icons, .sidebar-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 25px;
+}
+
+.sidebar-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  font-size: 12px;
+  transition: all 0.3s ease;
+}
+
+.sidebar-button span {
+  margin-top: 6px;
+}
+
+.sidebar-button:hover {
+  color: #1abc9c;
+}
+
+/* بخش محتوای اصلی */
+.dashboard-content {
+  flex: 1;
+  background-color: #f5f7fa;
+  padding: 25px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* هدر */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #dcdcdc;
+  text-align: right;
+}
+
+/* عنوان داشبورد */
+.dashboard-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* اطلاعات کاربر */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-direction: row-reverse;
+}
+
+.user-text p {
+  margin: 0;
+  color: #34495e;
+}
+
+.user-avatar {
+  width: 42px;
+  height: 42px;
+  background-color: #1abc9c;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+/* کارت محتوا داخل Outlet */
+.page-container {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}

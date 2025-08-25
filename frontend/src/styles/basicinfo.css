@@ -1,0 +1,65 @@
+/* src/styles/basicinfo.css */
+.basicinfo-container {
+  padding: 20px;
+  direction: rtl; /* راست‌چین کردن کل محتوا */
+  text-align: right; /* متن‌ها راست‌چین شوند */
+}
+
+.basicinfo-container h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+
+.basicinfo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 20px;
+  justify-items: end; /* کارت‌ها سمت راست قرار بگیرند */
+}
+
+.basicinfo-card {
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  padding: 20px;
+  text-align: center;
+  text-decoration: none;
+  color: #2c3e50;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.basicinfo-card .icon {
+  font-size: 36px;
+  margin-bottom: 10px;
+  color: #3498db;
+}
+
+.basicinfo-card .label {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.basicinfo-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+  color: #2980b9;
+}
+
+@media (max-width: 600px) {
+  .basicinfo-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  .basicinfo-card .icon {
+    font-size: 28px;
+  }
+
+  .basicinfo-card .label {
+    font-size: 14px;
+  }
+}
