@@ -1,0 +1,134 @@
+/* جعبه اصلی */
+.page-container {
+    background: #fff;
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* تیتر */
+.page-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 8px;
+}
+
+/* فرم بالا */
+.form-inline {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.form-control {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    outline: none;
+    font-size: 14px;
+}
+
+.form-control:focus {
+    border-color: #1abc9c;
+    box-shadow: 0 0 4px rgba(26, 188, 156, 0.4);
+}
+
+/* جدول */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.custom-table thead {
+    background: #2f4050;
+    color: #fff;
+}
+
+.custom-table th,
+.custom-table td {
+    text-align: center;
+    padding: 12px;
+    font-size: 14px;
+}
+
+.custom-table tbody tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+.custom-table tbody tr:hover {
+    background: #ecf0f1;
+}
+
+/* دکمه‌ها */
+.btn {
+    padding: 6px 12px;
+    font-size: 13px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 2px;
+    transition: all 0.3s ease;
+}
+
+.btn-success {
+    background: #1abc9c;
+    color: #fff;
+}
+
+.btn-success:hover {
+    background: #16a085;
+}
+
+.btn-primary {
+    background: #3498db;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #2980b9;
+}
+
+.btn-warning {
+    background: #f39c12;
+    color: #fff;
+}
+
+.btn-warning:hover {
+    background: #d68910;
+}
+
+.btn-danger {
+    background: #e74c3c;
+    color: #fff;
+}
+
+.btn-danger:hover {
+    background: #c0392b;
+}
+
+.btn-secondary {
+    background: #7f8c8d;
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background: #707b7c;
+}
+
+/* ورودی در حالت ویرایش */
+.edit-input {
+    padding: 6px 8px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+}

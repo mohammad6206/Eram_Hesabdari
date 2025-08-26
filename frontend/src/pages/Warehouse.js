@@ -4,44 +4,63 @@ import "../styles/Warehouse.css";
 
 function Warehouse() {
   const [warehouses, setWarehouses] = useState([]);
-  const [newWarehouse, setNewWarehouse] = useState("");
+  const [newWarehouseName, setNewWarehouseName] = useState("");
+  const [newWarehousePhone, setNewWarehousePhone] = useState("");
   const [editingWarehouse, setEditingWarehouse] = useState(null);
+
+  const API_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => { fetchWarehouses(); }, []);
 
   const fetchWarehouses = async () => {
     try {
-      const res = await axios.get("/api/warehouse/");
+      const res = await axios.get(`${API_URL}/api/warehouses/`);
       setWarehouses(res.data);
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleCreate = async () => {
-    if (!newWarehouse.trim()) return;
+    if (!newWarehouseName.trim()) return;
+
     try {
-      await axios.post("/api/create_warehouse/", { name: newWarehouse });
-      setNewWarehouse("");
+      await axios.post(`${API_URL}/api/warehouses/`, {
+        name: newWarehouseName,
+        phone: newWarehousePhone
+      });
+      setNewWarehouseName("");
+      setNewWarehousePhone("");
       fetchWarehouses();
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleUpdate = async () => {
     if (!editingWarehouse.name.trim()) return;
+
     try {
-      await axios.put(`/api/update_warehouse/${editingWarehouse.id}/`, {
+      await axios.put(`${API_URL}/api/warehouses/${editingWarehouse.id}/`, {
+        code: editingWarehouse.code,
         name: editingWarehouse.name,
+        phone: editingWarehouse.phone
       });
       setEditingWarehouse(null);
       fetchWarehouses();
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm("آیا مطمئن هستید می‌خواهید حذف کنید؟")) return;
     try {
-      await axios.delete(`/api/delete_warehouse/${id}/`);
+      await axios.delete(`${API_URL}/api/warehouses/${id}/`);
       fetchWarehouses();
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -52,8 +71,14 @@ function Warehouse() {
           <input
             type="text"
             placeholder="نام انبار جدید"
-            value={newWarehouse}
-            onChange={(e) => setNewWarehouse(e.target.value)}
+            value={newWarehouseName}
+            onChange={(e) => setNewWarehouseName(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="تلفن انبار"
+            value={newWarehousePhone}
+            onChange={(e) => setNewWarehousePhone(e.target.value)}
           />
           <button className="btn-add" onClick={handleCreate}>افزودن</button>
         </div>
@@ -63,15 +88,16 @@ function Warehouse() {
         <table className="warehouse-table">
           <thead>
             <tr>
-              <th>شناسه</th>
+              <th>کد</th>
               <th>نام انبار</th>
+              <th>تلفن</th>
               <th>عملیات</th>
             </tr>
           </thead>
           <tbody>
             {warehouses.map((w) => (
               <tr key={w.id}>
-                <td>{w.id}</td>
+                <td>{w.code}</td>
                 <td>
                   {editingWarehouse?.id === w.id ? (
                     <input
@@ -82,6 +108,18 @@ function Warehouse() {
                     />
                   ) : (
                     w.name
+                  )}
+                </td>
+                <td>
+                  {editingWarehouse?.id === w.id ? (
+                    <input
+                      type="text"
+                      value={editingWarehouse.phone || ""}
+                      onChange={(e) => setEditingWarehouse({ ...editingWarehouse, phone: e.target.value })}
+                      className="edit-input"
+                    />
+                  ) : (
+                    w.phone
                   )}
                 </td>
                 <td>

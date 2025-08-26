@@ -2,7 +2,7 @@
 import React from "react";
 import { Outlet, Link } from "react-router-dom";
 import {
-  FaUser, FaDatabase, FaClipboardList, FaChartBar, FaCogs, FaCog, FaSignOutAlt, FaBoxOpen
+  FaUser, FaDatabase, FaClipboardList, FaChartBar, FaCogs, FaCog, FaSignOutAlt, FaBoxOpen,FaTachometerAlt  
 } from "react-icons/fa";
 import "../styles/Layout.css";
 
@@ -13,7 +13,7 @@ function Layout() {
       <aside className="dashboard-sidebar">
         <div className="sidebar-icons" style={{ display: "flex", flexDirection: "column", gap: "20px", alignItems: "center" }}>
           <Link to="/dashboard" className="sidebar-button">
-            <FaDatabase size={24} />
+            <FaTachometerAlt   size={24} />
             <span>داشبورد</span>
           </Link>
 

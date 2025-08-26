@@ -1,7 +1,8 @@
 from django.db import models
+import uuid
 
 class Warehouse(models.Model):
-    code = models.CharField("کد انبار", max_length=50, unique=True)
+    code = models.CharField("کد انبار", max_length=50, unique=True, default=uuid.uuid4, editable=False)
     name = models.CharField("نام انبار", max_length=100)
     phone = models.CharField("تلفن", max_length=20, blank=True, null=True)
 
@@ -11,6 +12,7 @@ class Warehouse(models.Model):
 
 
 class ProductGroup(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField("عنوان گروه", max_length=100, unique=True)
 
     def __str__(self):
@@ -18,6 +20,7 @@ class ProductGroup(models.Model):
     
 
 class Unit(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField("عنوان واحد", max_length=100, unique=True)
 
     def __str__(self):
@@ -51,6 +54,7 @@ class Product(models.Model):
 
 
 class ConsumptionType(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField("عنوان نوع مصرف", max_length=100, unique=True)
 
     def __str__(self):

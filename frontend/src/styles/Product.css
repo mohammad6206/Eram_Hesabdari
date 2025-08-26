@@ -1,0 +1,106 @@
+/* Product.css */
+
+.product-group-container {
+    direction: rtl;
+    text-align: right;
+    padding: 20px;
+}
+
+.form-section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.form-input {
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.custom-table th,
+.custom-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: right;
+}
+
+.custom-table tbody tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+.custom-table tbody tr:hover {
+    background: #ecf0f1;
+}
+
+.btn {
+    padding: 6px 12px;
+    font-size: 13px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 2px;
+    transition: all 0.3s ease;
+}
+
+.btn-add {
+    background: #1abc9c;
+    color: #fff;
+}
+
+.btn-add:hover {
+    background: #16a085;
+}
+
+.btn-edit {
+    background: #f39c12;
+    color: #fff;
+}
+
+.btn-edit:hover {
+    background: #d68910;
+}
+
+.btn-delete {
+    background: #e74c3c;
+    color: #fff;
+}
+
+.btn-delete:hover {
+    background: #c0392b;
+}
+
+.btn-save {
+    background: #3498db;
+    color: #fff;
+}
+
+.btn-save:hover {
+    background: #2980b9;
+}
+
+.btn-cancel {
+    background: #7f8c8d;
+    color: #fff;
+}
+
+.btn-cancel:hover {
+    background: #707b7c;
+}
+
+.edit-input {
+    padding: 6px 8px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+}
