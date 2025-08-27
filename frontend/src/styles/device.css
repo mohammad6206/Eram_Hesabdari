@@ -1,0 +1,119 @@
+/* src/styles/Unit.css */
+.unit-container {
+    padding: 20px;
+    background-color: #f5f7fa;
+    min-height: 100%;
+    direction: rtl;
+    /* راست‌چین */
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.unit-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #2c3e50;
+}
+
+.unit-add {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.unit-add input {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+.unit-add button {
+    padding: 8px 16px;
+    background-color: #1abc9c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+.unit-add button:hover {
+    background-color: #16a085;
+}
+
+.unit-table-wrapper {
+    overflow-x: auto;
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.unit-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: right;
+}
+
+.unit-table th,
+.unit-table td {
+    padding: 12px 15px;
+}
+
+.unit-table th {
+    background-color: #2f4050;
+    color: white;
+    font-weight: 500;
+}
+
+.unit-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.unit-table tr:hover {
+    background-color: #e1f0ff;
+}
+
+.unit-table button {
+    margin-left: 6px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    border: none;
+    cursor: pointer;
+    color: white;
+}
+
+.btn-edit {
+    background-color: #f39c12;
+}
+
+.btn-edit:hover {
+    background-color: #e67e22;
+}
+
+.btn-delete {
+    background-color: #e74c3c;
+}
+
+.btn-delete:hover {
+    background-color: #c0392b;
+}
+
+.btn-save {
+    background-color: #1abc9c;
+}
+
+.btn-save:hover {
+    background-color: #16a085;
+}
+
+.btn-cancel {
+    background-color: #7f8c8d;
+}
+
+.btn-cancel:hover {
+    background-color: #95a5a6;
+}

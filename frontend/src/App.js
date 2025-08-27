@@ -14,6 +14,7 @@ import ProductGroup from "./pages/ProductGroup";
 import Unit from "./pages/Unit";
 import ConsumptionType from "./pages/ConsumptionType";
 import NotFound from "./pages/NotFound";
+import Device from "./pages/Device";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Route path="product-group" element={<ProductGroup />} />
         <Route path="unit" element={<Unit />} />
         <Route path="consumption-type" element={<ConsumptionType />} />
+        <Route path="device" element={<Device />} />
 
         {/* صفحه 404 */}
         <Route path="*" element={<NotFound />} />

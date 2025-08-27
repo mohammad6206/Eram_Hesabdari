@@ -26,3 +26,8 @@ class ConsumptionTypeSerializer(serializers.ModelSerializer):
         model = models.ConsumptionType
         fields = '__all__'
             
+
+class DeviceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Device
+        fields = '__all__'

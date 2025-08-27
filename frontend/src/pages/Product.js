@@ -1,17 +1,24 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../styles/Product.css";
-
+import DatePicker from "react-multi-date-picker";
+import persian from "react-date-object/calendars/persian";
+import persian_fa from "react-date-object/locales/persian_fa";
 function Product() {
   const [products, setProducts] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
   const [groups, setGroups] = useState([]);
   const [units, setUnits] = useState([]);
+  const [devices, setDevices] = useState([]);
+  const [date, setDate] = useState("");
+  const [newProductNumber, setNewProductNumber] = useState("");
+
   const API_URL = process.env.REACT_APP_API_URL;
 
   // فرم افزودن
   const [newProduct, setNewProduct] = useState({
     code: "",
+    device: "",
     name: "",
     group: "",            // id
     unit: "",             // id
@@ -37,7 +44,34 @@ function Product() {
     fetchGroups();
     fetchUnits();
     fetchWarehouses();
+    fetchDevices();
+    fetchNextProductNumber();
   }, []);
+
+  const fetchNextProductNumber = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/api/next-number/Product/`);
+      console.log(res.data);  // بررسی مقدار برگشتی
+      // اگر API عدد ساده یا با key `next_number` برمی‌گرداند
+      const nextNum = res.data.next_number || res.data;
+      setNewProductNumber(nextNum.toString());
+      // مقداردهی اولیه به newProduct.number
+      setNewProduct((prev) => ({ ...prev, number: nextNum.toString() }));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+
+  const fetchDevices = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/api/devices/`);
+      setDevices(res.data || []);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
 
   const fetchProducts = async () => {
     try {
@@ -80,7 +114,9 @@ function Product() {
     axios.get(`${API_URL}/api/warehouses/`).then((res) => setWarehouses(res.data));
     axios.get(`${API_URL}/api/product-groups/`).then((res) => setGroups(res.data));
     axios.get(`${API_URL}/api/units/`).then((res) => setUnits(res.data));
+    axios.get(`${API_URL}/api/devices/`).then((res) => setDevices(res.data));
   }, []);
+
 
   // کمکی‌ها برای تبدیل عددی
   const toInt = (v) => (v === "" || v === null ? 0 : parseInt(v, 10));
@@ -93,10 +129,12 @@ function Product() {
     const payload = {
       code: newProduct.code,
       name: newProduct.name,
+      device: newProduct.device,
       group: newProduct.group || null,
       unit: newProduct.unit || null,
       min_quantity: toInt(newProduct.min_quantity),
       max_quantity: toInt(newProduct.max_quantity),
+      registration_date: newProduct.registration_date || null,
       expiration_date: newProduct.expiration_date || null,
       purchase_price: toDec(newProduct.purchase_price),
       sale_price: toDec(newProduct.sale_price),
@@ -113,11 +151,13 @@ function Product() {
       await axios.post(`${API_URL}/api/products/`, payload);
       setNewProduct({
         code: "",
+        device: "",
         name: "",
         group: "",
         unit: "",
         min_quantity: "",
         max_quantity: "",
+        registration_date: "",
         expiration_date: "",
         purchase_price: "",
         sale_price: "",
@@ -130,6 +170,7 @@ function Product() {
         description: "",
       });
       fetchProducts();
+      fetchNextProductNumber();
     } catch (err) {
       console.error(err);
     }
@@ -140,11 +181,13 @@ function Product() {
 
     const payload = {
       code: editingProduct.code,
+      device: editingProduct.device || null,
       name: editingProduct.name,
       group: editingProduct.group || null,
       unit: editingProduct.unit || null,
       min_quantity: toInt(editingProduct.min_quantity),
       max_quantity: toInt(editingProduct.max_quantity),
+      registration_date: editingProduct.registration_date || null,
       expiration_date: editingProduct.expiration_date || null,
       purchase_price: toDec(editingProduct.purchase_price),
       sale_price: toDec(editingProduct.sale_price),
@@ -194,10 +237,25 @@ function Product() {
         <input
           type="text"
           className="form-input"
-          placeholder="کد کالا *"
-          value={newProduct.code}
-          onChange={(e) => setNewProduct({ ...newProduct, code: e.target.value })}
+          placeholder="شماره کالا *"
+          value={newProduct.number}  // از state number استفاده می‌کنیم
+          onChange={(e) => setNewProduct({ ...newProduct, number: e.target.value })}
         />
+
+        <select
+          className="form-input"
+          value={newProduct.device}
+          onChange={(e) =>
+            setNewProduct({ ...newProduct, device: e.target.value })
+          }
+        >
+          <option value="" hidden>دستگاه</option>
+          {devices.map((d) => (
+            <option key={d.id} value={d.id}>
+              {d.title}
+            </option>
+          ))}
+        </select>
         <input
           type="text"
           className="form-input"
@@ -212,7 +270,7 @@ function Product() {
           value={newProduct.group}
           onChange={(e) => setNewProduct({ ...newProduct, group: e.target.value })}
         >
-          <option value="">گروه کالا</option>
+          <option value="" hidden>گروه کالا</option>
           {groups.map((g) => (
             <option key={g.id} value={g.id}>
               {g.title}
@@ -224,7 +282,7 @@ function Product() {
           value={newProduct.unit}
           onChange={(e) => setNewProduct({ ...newProduct, unit: e.target.value })}
         >
-          <option value="">واحد کالا</option>
+          <option value="" hidden>واحد کالا</option>
           {units.map((u) => (
             <option key={u.id} value={u.id}>
               {u.title}   {/* چون فیلدش title هست */}
@@ -247,14 +305,31 @@ function Product() {
           value={newProduct.max_quantity}
           onChange={(e) => setNewProduct({ ...newProduct, max_quantity: e.target.value })}
         />
-
-
-        <input
-          type="date"
-          className="form-input"
-          placeholder="تاریخ انقضا"
+        <DatePicker
+          value={newProduct.registration_date}
+          onChange={(date) =>
+            setNewProduct({
+              ...newProduct,
+              registration_date: date ? date.format("YYYY-MM-DD") : "", // ذخیره به میلادی برای دیتابیس
+            })
+          }
+          calendar={persian}
+          locale={persian_fa}
+          inputClass="form-input"
+          placeholder="تاریخ ثبت"
+        />
+        <DatePicker
           value={newProduct.expiration_date}
-          onChange={(e) => setNewProduct({ ...newProduct, expiration_date: e.target.value })}
+          onChange={(date) =>
+            setNewProduct({
+              ...newProduct,
+              expiration_date: date ? date.format("YYYY-MM-DD") : "", // ذخیره به میلادی برای دیتابیس
+            })
+          }
+          calendar={persian}
+          locale={persian_fa}
+          inputClass="form-input"
+          placeholder="تاریخ انقضا"
         />
 
         <input
@@ -278,7 +353,7 @@ function Product() {
           value={newProduct.warehouse}
           onChange={(e) => setNewProduct({ ...newProduct, warehouse: e.target.value })}
         >
-          <option value="">مکان کالا (انبار)</option>
+          <option value="" hidden>مکان کالا (انبار)</option>
           {warehouses.map((w) => (
             <option key={w.id} value={w.id}>
               {w.name} {/* ← اصلاح شد */}
@@ -346,7 +421,8 @@ function Product() {
         <table className="custom-table">
           <thead>
             <tr>
-              <th>کد</th>
+              <th>شماره کالا</th>
+              <th>دستگاه</th>
               <th>نام</th>
               <th>گروه</th>
               <th>واحد</th>
@@ -371,12 +447,28 @@ function Product() {
               <tr key={p.id}>
                 {editingProduct?.id === p.id ? (
                   <>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="شماره کالا *"
+                      value={newProduct.number} // شماره اتوماتیک از API
+                      onChange={(e) => setNewProduct({ ...newProduct, number: e.target.value })} // قابل ویرایش
+                    />
                     <td>
-                      <input
+                      <select
                         className="edit-input"
-                        value={editingProduct.code}
-                        onChange={(e) => setEditingProduct({ ...editingProduct, code: e.target.value })}
-                      />
+                        value={editingProduct.device || ""}
+                        onChange={(e) =>
+                          setEditingProduct({ ...editingProduct, device: e.target.value })
+                        }
+                      >
+                        <option value="">—</option>
+                        {devices.map((d) => (
+                          <option key={d.id} value={d.id}>
+                            {d.title}
+                          </option>
+                        ))}
+                      </select>
                     </td>
                     <td>
                       <input
@@ -425,10 +517,14 @@ function Product() {
                         onChange={(e) => setEditingProduct({ ...editingProduct, max_quantity: e.target.value })}
                       />
                     </td>
-
-                    {/* تاریخ ثبت فقط نمایش */}
-                    <td>{p.registration_date || "-"}</td>
-
+                    <td>
+                      <input
+                        className="edit-input"
+                        type="date"
+                        value={editingProduct.registration_date || ""}
+                        onChange={(e) => setEditingProduct({ ...editingProduct, registration_date: e.target.value })}
+                      />
+                    </td>
                     <td>
                       <input
                         className="edit-input"
@@ -526,6 +622,7 @@ function Product() {
                 ) : (
                   <>
                     <td>{p.code}</td>
+                    <td>{nameOf(p.device, devices)}</td>
                     <td>{p.name}</td>
                     <td>{nameOf(p.group, groups)}</td>
                     <td>{nameOf(p.unit, units)}</td>

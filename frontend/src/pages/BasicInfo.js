@@ -11,6 +11,9 @@ import {
   FaTruck,
   FaFire,
   FaLayerGroup,
+  FaCogs,
+  FaLaptop,
+ 
 } from "react-icons/fa";
 import "../styles/basicinfo.css"; // فایل CSS جدا
 
@@ -25,6 +28,9 @@ function BasicInfo() {
     { label: "ورود کالا از اکسل", icon: <FaFileExcel />, to: "#" },
     { label: "تعریف رانندگان", icon: <FaTruck />, to: "#" },
     { label: "نوع مصرف", icon: <FaFire />, to: "/consumption-type" },
+    { label: "تعریف دستگاه" , icon: <FaLaptop   />, to: "/device" },
+    { label: "قطعات دستگاه" , icon: <FaCogs />, to: "/device-part" },
+
   ];
 
   return (

@@ -1,4 +1,3 @@
-// src/pages/ConsumptionType.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../styles/ConsumptionType.css";
@@ -6,13 +5,25 @@ import "../styles/ConsumptionType.css";
 function ConsumptionType() {
   const [types, setTypes] = useState([]);
   const [newType, setNewType] = useState("");
+  const [newConsumptionTypeNumber, setNewConsumptionTypeNumber] = useState(""); // شماره اتوماتیک
   const [editingType, setEditingType] = useState(null);
 
   const API_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     fetchTypes();
+    fetchNextNumber();
   }, []);
+
+  const fetchNextNumber = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/api/next-number/ConsumptionType/`);
+      setNewConsumptionTypeNumber(res.data.next_number.toString());
+    } catch (err) {
+      console.error(err);
+      setNewConsumptionTypeNumber("");
+    }
+  };
 
   const fetchTypes = async () => {
     try {
@@ -26,8 +37,12 @@ function ConsumptionType() {
   const handleCreate = async () => {
     if (!newType.trim()) return;
     try {
-      await axios.post(`${API_URL}/api/consumption-types/`, { title: newType });
+      await axios.post(`${API_URL}/api/consumption-types/`, {
+        number: newConsumptionTypeNumber || null,
+        title: newType,
+      });
       setNewType("");
+      fetchNextNumber();
       fetchTypes();
     } catch (err) {
       console.error(err);
@@ -38,6 +53,7 @@ function ConsumptionType() {
     if (!editingType?.title.trim()) return;
     try {
       await axios.put(`${API_URL}/api/consumption-types/${editingType.id}/`, {
+        number: editingType.number,
         title: editingType.title,
       });
       setEditingType(null);
@@ -62,42 +78,46 @@ function ConsumptionType() {
       <h2 className="page-title text-end">مدیریت نوع مصرف</h2>
 
       {/* فرم افزودن نوع مصرف */}
-      <div className="form-inline justify-content-end mb-3">
+      <div className="form-section">
+        <input
+          type="number"
+          className="form-input"
+          placeholder="شماره نوع مصرف"
+          value={newConsumptionTypeNumber}
+          onChange={(e) => setNewConsumptionTypeNumber(e.target.value)}
+        />
         <input
           type="text"
-          className="form-control text-end"
+          className="form-input"
           placeholder="نوع مصرف جدید"
           value={newType}
           onChange={(e) => setNewType(e.target.value)}
         />
-        <button className="btn btn-success ms-2" onClick={handleCreate}>
+        <button className="btn btn-add" onClick={handleCreate}>
           افزودن
         </button>
       </div>
 
       {/* جدول */}
-      <div className="table-responsive" dir="rtl">
-        <table className="table table-striped table-dark custom-table text-end">
+      <div className="table-wrapper">
+        <table className="custom-table">
           <thead>
             <tr>
-              <th className="text-end">شناسه</th>
-              <th className="text-end">نوع مصرف</th>
-              <th className="text-end">عملیات</th>
+              <th>شماره نوع مصرف</th>
+              <th>نوع مصرف</th>
+              <th>عملیات</th>
             </tr>
           </thead>
           <tbody>
             {types.map((t) => (
               <tr key={t.id}>
-                {/* شناسه */}
-                <td className="text-end">{t.id}</td>
-
-                {/* نوع مصرف */}
-                <td className="text-end">
+                <td>{t.number}</td>
+                <td>
                   {editingType?.id === t.id ? (
                     <input
                       type="text"
+                      className="edit-input"
                       value={editingType.title || ""}
-                      className="form-control text-end"
                       onChange={(e) =>
                         setEditingType({ ...editingType, title: e.target.value })
                       }
@@ -106,19 +126,14 @@ function ConsumptionType() {
                     t.title
                   )}
                 </td>
-
-                {/* عملیات */}
-                <td className="text-end">
+                <td>
                   {editingType?.id === t.id ? (
                     <>
-                      <button
-                        className="btn btn-primary btn-sm ms-1"
-                        onClick={handleUpdate}
-                      >
+                      <button className="btn btn-save" onClick={handleUpdate}>
                         ذخیره
                       </button>
                       <button
-                        className="btn btn-secondary btn-sm ms-1"
+                        className="btn btn-cancel"
                         onClick={() => setEditingType(null)}
                       >
                         انصراف
@@ -127,13 +142,13 @@ function ConsumptionType() {
                   ) : (
                     <>
                       <button
-                        className="btn btn-warning btn-sm ms-1"
+                        className="btn btn-edit"
                         onClick={() => setEditingType(t)}
                       >
                         ویرایش
                       </button>
                       <button
-                        className="btn btn-danger btn-sm ms-1"
+                        className="btn btn-delete"
                         onClick={() => handleDelete(t.id)}
                       >
                         حذف
@@ -143,14 +158,6 @@ function ConsumptionType() {
                 </td>
               </tr>
             ))}
-
-            {types.length === 0 && (
-              <tr>
-                <td colSpan="3" className="text-center text-muted">
-                  هیچ نوع مصرفی ثبت نشده است.
-                </td>
-              </tr>
-            )}
           </tbody>
         </table>
       </div>

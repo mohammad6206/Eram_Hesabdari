@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "../styles/Unit.css";
+import "../styles/device.css";
 
-function Unit() {
+function Device() {
   const [units, setUnits] = useState([]);
-  const [newUnitNumber, setNewUnitNumber] = useState(""); // شماره اتوماتیک
+  const [newUnitNumber, setNewUnitNumber] = useState(""); 
   const [newUnitTitle, setNewUnitTitle] = useState("");
   const [editingUnit, setEditingUnit] = useState(null);
 
@@ -17,8 +17,8 @@ function Unit() {
 
   const fetchNextNumber = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/next-number/Unit/`);
-      setNewUnitNumber(res.data.next_number.toString());
+      const res = await axios.get(`${API_URL}/api/next-number/Device/`);
+      setNewUnitNumber(res.data.next_number?.toString() || "");
     } catch (err) {
       console.error("Error fetching next number:", err);
       setNewUnitNumber("");
@@ -27,10 +27,10 @@ function Unit() {
 
   const fetchUnits = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/units/`);
+      const res = await axios.get(`${API_URL}/api/devices/`);
       setUnits(res.data);
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching units:", err);
     }
   };
 
@@ -38,57 +38,58 @@ function Unit() {
     if (!newUnitTitle.trim()) return;
 
     try {
-      await axios.post(`${API_URL}/api/units/`, {
+      await axios.post(`${API_URL}/api/devices/`, {
         number: newUnitNumber || null,
-        title: newUnitTitle,
+        title: newUnitTitle.trim(),
       });
       setNewUnitTitle("");
+      setNewUnitNumber("");
       fetchNextNumber();
       fetchUnits();
     } catch (err) {
-      console.error(err);
+      console.error("Error creating device:", err);
     }
   };
 
   const handleUpdate = async () => {
-    if (!editingUnit?.title.trim()) return;
+    if (!editingUnit || !editingUnit.title.trim()) return;
 
     try {
-      await axios.put(`${API_URL}/api/units/${editingUnit.id}/`, {
+      await axios.put(`${API_URL}/api/devices/${editingUnit.id}/`, {
         number: editingUnit.number,
-        title: editingUnit.title,
+        title: editingUnit.title.trim(),
       });
       setEditingUnit(null);
       fetchUnits();
     } catch (err) {
-      console.error(err);
+      console.error("Error updating device:", err);
     }
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm("آیا مطمئن هستید می‌خواهید حذف کنید؟")) return;
     try {
-      await axios.delete(`${API_URL}/api/units/${id}/`);
+      await axios.delete(`${API_URL}/api/devices/${id}/`);
       fetchUnits();
     } catch (err) {
-      console.error(err);
+      console.error("Error deleting device:", err);
     }
   };
 
   return (
     <div className="unit-container" dir="rtl">
-      <h2 className="unit-title">مدیریت واحدها</h2>
+      <h2 className="unit-title">مدیریت دستگاه‌ها</h2>
 
       <div className="unit-add">
         <input
-          type="number"
-          placeholder="شماره واحد"
+          type="text"
+          placeholder="شماره دستگاه"
           value={newUnitNumber}
           onChange={(e) => setNewUnitNumber(e.target.value)}
         />
         <input
           type="text"
-          placeholder="نام واحد جدید"
+          placeholder="عنوان دستگاه"
           value={newUnitTitle}
           onChange={(e) => setNewUnitTitle(e.target.value)}
         />
@@ -99,8 +100,8 @@ function Unit() {
         <table className="unit-table">
           <thead>
             <tr>
-              <th>شماره واحد</th>
-              <th>نام واحد</th>
+              <th>شماره دستگاه</th>
+              <th>عنوان دستگاه</th>
               <th>عملیات</th>
             </tr>
           </thead>
@@ -110,8 +111,8 @@ function Unit() {
                 <td>
                   {editingUnit?.id === u.id ? (
                     <input
-                      type="number"
-                      value={editingUnit.number}
+                      type="text"
+                      value={editingUnit.number || ""}
                       onChange={(e) =>
                         setEditingUnit({ ...editingUnit, number: e.target.value })
                       }
@@ -172,4 +173,4 @@ function Unit() {
   );
 }
 
-export default Unit;
+export default Device;
