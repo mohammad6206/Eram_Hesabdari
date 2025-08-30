@@ -1,13 +1,14 @@
 # views.py
 from rest_framework import viewsets
-from .models import Warehouse, Product, ProductGroup, Unit, ConsumptionType,Device
+from .models import Warehouse, Product, ProductGroup, Unit, ConsumptionType,Device,Personnel,generate_unique_personnel_code
 from .serializer import (
     WarehouseSerializer, ProductSerializer,
     ProductGroupSerializer, UnitSerializer,
-    ConsumptionTypeSerializer,DeviceSerializer
+    ConsumptionTypeSerializer,DeviceSerializer,
+    PersonnelSerializer
 )
+from rest_framework.decorators import api_view,action
 from django.apps import apps
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 class WarehouseViewSet(viewsets.ModelViewSet):
@@ -62,5 +63,31 @@ def next_number(request, model_name):
 
 
 
+# views.py
+class DeviceViewSet(viewsets.ModelViewSet):
+    queryset = Device.objects.all()
+    serializer_class = DeviceSerializer
+
+    @action(detail=True, methods=["get"])
+    def products(self, request, pk=None):
+        """
+        لیست نام کالاهایی که به این دستگاه تعلق دارند
+        """
+        device = self.get_object()
+        product_names = list(device.product_set.values_list("name", flat=True))
+        return Response({"device_id": device.id, "device_title": device.title, "product_names": product_names})
 
 
+
+
+class PersonnelViewSet(viewsets.ModelViewSet):
+    queryset =Personnel.objects.all()
+    serializer_class = PersonnelSerializer
+
+
+
+
+@api_view(["GET"])
+def generate_personnel_code(request):
+    code = generate_unique_personnel_code()
+    return Response({"personnel_code": code})

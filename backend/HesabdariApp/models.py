@@ -1,5 +1,6 @@
 from django.db import models
 import uuid
+import random
 
 
 class AutoNumberMixin(models.Model):
@@ -83,20 +84,11 @@ class Product(AutoNumberMixin,models.Model):
     number = models.CharField("شماره کالا", max_length=50, unique=True, blank=True, null=True)
     device= models.ForeignKey("Device",verbose_name="عنوان دستگاه", on_delete=models.CASCADE)
     name = models.CharField("نام کالا", max_length=200)
+    model = models.CharField("مدل", max_length=100, blank=True, null=True)
     group = models.ForeignKey("ProductGroup", verbose_name="گروه کالا", on_delete=models.CASCADE)
     unit = models.ForeignKey("Unit", verbose_name="واحد کالا", on_delete=models.CASCADE)
     registration_date = models.DateField("تاریخ ثبت", null=True, blank=True)
-    min_quantity = models.PositiveIntegerField("حداقل تعداد", default=0)
-    max_quantity = models.PositiveIntegerField("حداکثر تعداد", default=0)
-    expiration_date = models.DateField("تاریخ انقضا", null=True, blank=True)
-    purchase_price = models.DecimalField("قیمت خرید", max_digits=12, decimal_places=2, default=0)
-    sale_price = models.DecimalField("قیمت فروش", max_digits=12, decimal_places=2, default=0)
-    warehouse = models.ForeignKey(Warehouse, verbose_name="مکان کالا", on_delete=models.SET_NULL, null=True, blank=True)
-    discount_percent = models.DecimalField("درصد تخفیف فروش", max_digits=5, decimal_places=2, default=0)
-    model = models.CharField("مدل", max_length=100, blank=True, null=True)
-    tax_percent = models.DecimalField("درصد مالیات", max_digits=5, decimal_places=2, default=0)
-    duty_percent = models.DecimalField("درصد عوارض", max_digits=5, decimal_places=2, default=0)
-    final_tax_percent = models.DecimalField("مالیات بر مصرف نهایی", max_digits=5, decimal_places=2, default=0)
+    quantity = models.PositiveIntegerField("تعداد", default=0)
     description = models.TextField("توضیحات", blank=True, null=True)
 
     def __str__(self):
@@ -127,3 +119,37 @@ class Device(AutoNumberMixin,models.Model):
     def __str__(self):
         return self.title
     
+
+
+
+
+def generate_unique_personnel_code():
+    from .models import Personnel  # فقط اینجا import شود
+    while True:
+        code = str(random.randint(10000, 99999))  # عدد 5 رقمی
+        if not Personnel.objects.filter(personnel_code=code).exists():
+            return code
+
+class Personnel(models.Model):
+    personnel_code = models.CharField("کد پرسنلی", max_length=5, unique=True, blank=True)
+    full_name = models.CharField("نام و نام خانوادگی", max_length=200)
+    national_id = models.CharField("کد ملی", max_length=20, blank=True, null=True)
+    father_name = models.CharField("نام پدر", max_length=100, blank=True, null=True)
+    address = models.TextField("آدرس", blank=True, null=True)
+    postal_code = models.CharField("کد پستی", max_length=20, blank=True, null=True)
+    email = models.EmailField("ایمیل", blank=True, null=True)
+    birth_certificate_number = models.CharField("شماره شناسنامه", max_length=50, blank=True, null=True)
+    
+    national_card_file = models.FileField("کارت ملی", upload_to="personnel/national_cards/", blank=True, null=True)
+    birth_certificate_file = models.FileField("شناسنامه / کارت دانشجویی / آخرین مدرک", upload_to="personnel/birth_certificates/", blank=True, null=True)
+    vehicle_card_file = models.FileField("کارت خودرو (اختیاری)", upload_to="personnel/vehicle_cards/", blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+
+    def save(self, *args, **kwargs):
+        if not self.personnel_code:
+            self.personnel_code = generate_unique_personnel_code()
+        super().save(*args, **kwargs)

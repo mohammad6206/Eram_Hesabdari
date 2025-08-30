@@ -22,7 +22,7 @@ function Layout() {
             <span>اطلاعات پایه</span>
           </Link>
 
-          <Link to="#" className="sidebar-button">
+          <Link to="/product-operation" className="sidebar-button">
             <FaBoxOpen size={24} />
             <span>عملیات کالا</span>
           </Link>

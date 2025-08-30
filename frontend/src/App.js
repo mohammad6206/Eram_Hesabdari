@@ -8,6 +8,7 @@ import Layout from "./components/Layout";
 // صفحات اصلی
 import Dashboard from "./pages/Dashboard";
 import BasicInfo from "./pages/BasicInfo";
+import ProductOperation from "./pages/ProductOperation";
 import Warehouse from "./pages/Warehouse";
 import Product from "./pages/Product";
 import ProductGroup from "./pages/ProductGroup";
@@ -15,6 +16,10 @@ import Unit from "./pages/Unit";
 import ConsumptionType from "./pages/ConsumptionType";
 import NotFound from "./pages/NotFound";
 import Device from "./pages/Device";
+import DevicePart from "./pages/DevicePart";
+import BuyInvoice from "./pages/BuyInvoice";
+import SellInvoice from "./pages/SellInvoice";
+import Personnel from "./pages/Personnel";
 
 function App() {
   return (
@@ -26,13 +31,17 @@ function App() {
 
         {/* اطلاعات پایه */}
         <Route path="basic-info" element={<BasicInfo />} />
+        <Route path="product-operation" element={<ProductOperation />} />
         <Route path="warehouse" element={<Warehouse />} />
         <Route path="product" element={<Product />} />
         <Route path="product-group" element={<ProductGroup />} />
         <Route path="unit" element={<Unit />} />
         <Route path="consumption-type" element={<ConsumptionType />} />
         <Route path="device" element={<Device />} />
-
+        <Route path="device-part" element={<DevicePart />} />
+        <Route path="buy-invoice" element={<BuyInvoice />} />
+        <Route path="sell-invoice" element={<SellInvoice />} />
+        <Route path="personnel" element={<Personnel />} />
         {/* صفحه 404 */}
         <Route path="*" element={<NotFound />} />
       </Route>

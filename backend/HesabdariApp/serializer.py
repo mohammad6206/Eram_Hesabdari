@@ -31,3 +31,9 @@ class DeviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Device
         fields = '__all__'
+
+
+class PersonnelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Personnel
+        fields = '__all__'

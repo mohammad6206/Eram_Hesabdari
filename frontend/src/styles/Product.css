@@ -14,12 +14,21 @@
     margin-bottom: 20px;
 }
 
+/* دکمه‌ها (افزودن کالا و ...) */
+.form-actions {
+    display: flex;
+    justify-content: flex-start; /* چیدمان سمت چپ */
+    margin-top: 15px;
+}
+
+/* فیلدهای ورودی */
 .form-input {
     padding: 8px;
     border-radius: 6px;
     border: 1px solid #ccc;
 }
 
+/* جدول */
 .table-wrapper {
     overflow-x: auto;
 }
@@ -44,6 +53,7 @@
     background: #ecf0f1;
 }
 
+/* دکمه عمومی */
 .btn {
     padding: 6px 12px;
     font-size: 13px;
@@ -55,14 +65,22 @@
 }
 
 .btn-add {
+    padding: 5px 10px;
+    font-size: 12px;
     background: #1abc9c;
     color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .btn-add:hover {
     background: #16a085;
 }
 
+
+/* دکمه ویرایش */
 .btn-edit {
     background: #f39c12;
     color: #fff;
@@ -72,6 +90,7 @@
     background: #d68910;
 }
 
+/* دکمه حذف */
 .btn-delete {
     background: #e74c3c;
     color: #fff;
@@ -81,6 +100,7 @@
     background: #c0392b;
 }
 
+/* دکمه ذخیره */
 .btn-save {
     background: #3498db;
     color: #fff;
@@ -90,6 +110,7 @@
     background: #2980b9;
 }
 
+/* دکمه لغو */
 .btn-cancel {
     background: #7f8c8d;
     color: #fff;
@@ -99,6 +120,7 @@
     background: #707b7c;
 }
 
+/* فیلدهای حالت ویرایش */
 .edit-input {
     padding: 6px 8px;
     border: 1px solid #bbb;

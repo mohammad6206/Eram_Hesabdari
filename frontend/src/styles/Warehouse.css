@@ -1,106 +1,117 @@
 .warehouse-container {
-  background-color: #fefefe;
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  max-width: 900px;
-  margin: 0 auto;
-  direction: rtl; /* راست چین */
-  text-align: right; /* متن راست چین */
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+    max-width: 900px;
+    margin: 0 auto;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    direction: rtl;  /* راست‌چین */
 }
 
 .header h2 {
-  color: #2c3e50;
+    font-size: 22px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 6px;
 }
 
+/* فرم افزودن */
 .add-warehouse {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
 }
 
 .add-warehouse input {
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  width: 200px;
-  text-align: right;
+    flex: 1;
+    padding: 6px 10px;
+    font-size: 13px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    text-align: right;
+    min-width: 120px;
 }
 
 .btn-add {
-  background-color: #1abc9c;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.3s;
+    padding: 5px 10px;
+    font-size: 12px;
+    background: #1abc9c;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .btn-add:hover {
-  background-color: #16a085;
+    background: #16a085;
 }
 
+/* جدول */
 .table-wrapper {
-  overflow-x: auto;
+    overflow-x: auto;
 }
 
 .warehouse-table {
-  width: 100%;
-  border-collapse: collapse;
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.warehouse-table thead {
+    background: #2f4050;
+    color: #fff;
 }
 
 .warehouse-table th,
 .warehouse-table td {
-  padding: 12px 15px;
-  text-align: center;
-  border-bottom: 1px solid #e0e0e0;
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
 }
 
-.warehouse-table th {
-  background-color: #f1f1f1;
-  color: #2c3e50;
+.warehouse-table tbody tr:nth-child(even) {
+    background: #f8f9fa;
 }
 
-.warehouse-table tr:nth-child(even) {
-  background-color: #f9f9f9;
+.warehouse-table tbody tr:hover {
+    background: #ecf0f1;
 }
 
-.edit-input {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  width: 100%;
-  text-align: right;
-}
-
-/* دکمه ها */
+/* دکمه‌های جدول */
 .warehouse-table button {
-  margin: 0 2px;
-  padding: 5px 10px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-size: 13px;
-  transition: 0.3s;
+    margin: 2px;
+    padding: 5px 10px;
+    font-size: 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.btn-edit { background-color: #f1c40f; color: white; }
-.btn-edit:hover { background-color: #d4ac0d; }
+.btn-edit { background-color: #f39c12; color: #fff; }
+.btn-edit:hover { background-color: #d68910; }
 
-.btn-delete { background-color: #e74c3c; color: white; }
+.btn-delete { background-color: #e74c3c; color: #fff; }
 .btn-delete:hover { background-color: #c0392b; }
 
-.btn-save { background-color: #1abc9c; color: white; }
-.btn-save:hover { background-color: #16a085; }
+.btn-save { background-color: #3498db; color: #fff; }
+.btn-save:hover { background-color: #2980b9; }
 
-.btn-cancel { background-color: #7f8c8d; color: white; }
-.btn-cancel:hover { background-color: #606060; }
+.btn-cancel { background-color: #7f8c8d; color: #fff; }
+.btn-cancel:hover { background-color: #707b7c; }
+
+/* ورودی ویرایش */
+.edit-input {
+    padding: 5px 8px;
+    font-size: 13px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    width: 100%;
+    text-align: right;
+}
