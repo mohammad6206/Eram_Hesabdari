@@ -37,3 +37,16 @@ class PersonnelSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Personnel
         fields = '__all__'
+
+
+
+class SellerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Seller
+        fields = '__all__'
+
+
+class BuyerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Buyer
+        fields = '__all__'

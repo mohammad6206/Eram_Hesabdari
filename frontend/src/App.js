@@ -20,7 +20,11 @@ import DevicePart from "./pages/DevicePart";
 import BuyInvoice from "./pages/BuyInvoice";
 import SellInvoice from "./pages/SellInvoice";
 import Personnel from "./pages/Personnel";
-
+import PersonnelList from "./pages/PersonnelList"
+import Seller from "./pages/Seller";
+import Buyer from "./pages/Buyer";
+import SellerList from "./pages/SellerList";
+import BuyerList from "./pages/BuyerList";
 function App() {
   return (
     <Routes>
@@ -42,6 +46,11 @@ function App() {
         <Route path="buy-invoice" element={<BuyInvoice />} />
         <Route path="sell-invoice" element={<SellInvoice />} />
         <Route path="personnel" element={<Personnel />} />
+        <Route path="personnel-list" element={<PersonnelList />} />
+        <Route path="seller" element={<Seller />} />
+        <Route path="buyer" element={<Buyer />} />
+        <Route path="sellerlist" element={<SellerList />} />
+        <Route path="buyerlist" element={<BuyerList />} />
         {/* صفحه 404 */}
         <Route path="*" element={<NotFound />} />
       </Route>

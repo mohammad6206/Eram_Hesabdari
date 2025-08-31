@@ -124,7 +124,6 @@ class Device(AutoNumberMixin,models.Model):
 
 
 def generate_unique_personnel_code():
-    from .models import Personnel  # فقط اینجا import شود
     while True:
         code = str(random.randint(10000, 99999))  # عدد 5 رقمی
         if not Personnel.objects.filter(personnel_code=code).exists():
@@ -139,6 +138,7 @@ class Personnel(models.Model):
     postal_code = models.CharField("کد پستی", max_length=20, blank=True, null=True)
     email = models.EmailField("ایمیل", blank=True, null=True)
     birth_certificate_number = models.CharField("شماره شناسنامه", max_length=50, blank=True, null=True)
+    position=models.CharField("سمت", max_length=100, blank=True, null=True)
     
     national_card_file = models.FileField("کارت ملی", upload_to="personnel/national_cards/", blank=True, null=True)
     birth_certificate_file = models.FileField("شناسنامه / کارت دانشجویی / آخرین مدرک", upload_to="personnel/birth_certificates/", blank=True, null=True)
@@ -153,3 +153,47 @@ class Personnel(models.Model):
         if not self.personnel_code:
             self.personnel_code = generate_unique_personnel_code()
         super().save(*args, **kwargs)
+
+
+
+
+
+class Seller(models.Model):
+    number_field = "number"
+
+    number = models.CharField("شماره فروشنده", max_length=50, unique=True, blank=True, null=True)
+    name = models.CharField("نام تامین‌کننده", max_length=255)
+    national_id = models.CharField("شناسه ملی", max_length=20, blank=True, null=True)
+    economic_code = models.CharField("کد اقتصادی", max_length=50, blank=True, null=True)
+    postal_code = models.CharField("کد پستی", max_length=20, blank=True, null=True)
+    city = models.CharField("شهر فروشگاه", max_length=100, blank=True, null=True)
+    address = models.TextField("آدرس", blank=True, null=True)
+    email = models.EmailField("ایمیل", blank=True, null=True)
+    phone = models.CharField("شماره تماس", max_length=20, blank=True, null=True)
+    website = models.URLField("آدرس وبسایت", blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+
+
+
+
+
+class Buyer(models.Model):
+    number_field = "number"
+
+    number = models.CharField("شماره خریدار", max_length=50, unique=True, blank=True, null=True)
+    name = models.CharField("نام مرکز / نام شخص (حقیقی/حقوقی)", max_length=255)
+    contact_phone = models.CharField("شماره تماس مرکز / شماره تماس شخص در ارتباط", max_length=20, blank=True, null=True)
+    national_id = models.CharField("شناسه ملی", max_length=20, blank=True, null=True)
+    economic_code = models.CharField("کد اقتصادی", max_length=50, blank=True, null=True)
+    postal_code = models.CharField("کد پستی", max_length=20, blank=True, null=True)
+    address = models.TextField("آدرس", blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name

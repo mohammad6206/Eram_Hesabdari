@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { Link } from "react-router-dom";
 
 export default function NewPersonnelForm() {
     const [formData, setFormData] = useState({
-        personnel_code: "",  // <-- اضافه شد
+        personnel_code: "",
         full_name: "",
         national_id: "",
         father_name: "",
@@ -11,10 +12,12 @@ export default function NewPersonnelForm() {
         postal_code: "",
         email: "",
         birth_certificate_number: "",
+        position: "",
         national_card_file: null,
         birth_certificate_file: null,
         vehicle_card_file: null,
     });
+
     const API_URL = process.env.REACT_APP_API_URL;
     const [personnelList, setPersonnelList] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -32,17 +35,11 @@ export default function NewPersonnelForm() {
         const data = await res.json();
         setFormData((prev) => ({ ...prev, personnel_code: data.personnel_code }));
     };
+
     useEffect(() => {
-        // گرفتن لیست پرسنل
         fetchPersonnel();
-
-        // گرفتن کد پرسنلی یونیک از سرور
-        fetch(`${API_URL}/api/personnels/generate_code/`)
-            .then(res => res.json())
-            .then(data => setFormData(prev => ({ ...prev, personnel_code: data.personnel_code })))
-            .catch(err => console.error(err));
+        fetchUniqueCode();
     }, []);
-
 
     const handleChange = (e) => {
         const { name, value, files } = e.target;
@@ -74,7 +71,7 @@ export default function NewPersonnelForm() {
             setPersonnelList([newPersonnel, ...personnelList]);
 
             // پاک کردن فرم و گرفتن کد پرسنلی جدید
-            setFormData({
+            setFormData({   
                 personnel_code: "",
                 full_name: "",
                 national_id: "",
@@ -83,6 +80,7 @@ export default function NewPersonnelForm() {
                 postal_code: "",
                 email: "",
                 birth_certificate_number: "",
+                position: "",
                 national_card_file: null,
                 birth_certificate_file: null,
                 vehicle_card_file: null,
@@ -99,21 +97,28 @@ export default function NewPersonnelForm() {
     };
 
     return (
-        <div className="container my-4 p-4 border rounded shadow-sm" dir="rtl">
-            <h2 className="text-center mb-4">تعریف پرسنل جدید</h2>
+        <div className="container my-4 p-4 border rounded shadow-sm bg-primary-100" dir="rtl">
 
+            <div className="mt-4 text-start">
+                <Link to="/personnel-list" className="btn btn-success mb-3">
+                    مشاهده لیست پرسنل
+                </Link>
+            </div>
+
+            <h2 className="text-center mb-4">تعریف پرسنل جدید</h2>
             <form onSubmit={handleSubmit}>
-                {/* نمایش کد پرسنلی تولید شده توسط سرور */}
+                {/* کد پرسنلی */}
                 <div className="mb-3 text-end">
                     <label className="form-label fw-bold">کد پرسنلی :</label>
                     <input
                         type="text"
-                        className="form-control text-end"
+                        className="form-control text-center"
                         value={formData.personnel_code}
                         readOnly
                     />
                 </div>
-                {/* سایر فیلدهای فرم */}
+
+                {/* نام و کدملی */}
                 <div className="row mb-3 text-end">
                     <div className="col-md-6 mb-3">
                         <input
@@ -138,6 +143,7 @@ export default function NewPersonnelForm() {
                     </div>
                 </div>
 
+                {/* نام پدر و آدرس */}
                 <div className="row mb-3 text-end">
                     <div className="col-md-6 mb-3">
                         <input
@@ -161,6 +167,7 @@ export default function NewPersonnelForm() {
                     </div>
                 </div>
 
+                {/* کد پستی و ایمیل */}
                 <div className="row mb-3 text-end">
                     <div className="col-md-6 mb-3">
                         <input
@@ -184,6 +191,7 @@ export default function NewPersonnelForm() {
                     </div>
                 </div>
 
+                {/* شماره شناسنامه و سمت */}
                 <div className="row mb-3 text-end">
                     <div className="col-md-6 mb-3">
                         <input
@@ -195,8 +203,19 @@ export default function NewPersonnelForm() {
                             onChange={handleChange}
                         />
                     </div>
+                    <div className="col-md-6 mb-3">
+                        <input
+                            type="text"
+                            name="position"
+                            className="form-control text-end"
+                            placeholder="سمت"
+                            value={formData.position}
+                            onChange={handleChange}
+                        />
+                    </div>
                 </div>
 
+                {/* فایل‌ها */}
                 <div className="row mb-3 text-end">
                     <div className="col-md-4 mb-3">
                         <label className="form-label">آپلود کارت ملی:</label>
@@ -233,37 +252,6 @@ export default function NewPersonnelForm() {
                     {loading ? "در حال ثبت..." : "ثبت پرسنل"}
                 </button>
             </form>
-
-            {/* جدول نمایش پرسنل‌ها */}
-            <div className="mt-4">
-                <h4 className="text-end mb-3">لیست پرسنل ثبت شده</h4>
-                <table className="table table-striped table-bordered text-end">
-                    <thead className="table-dark">
-                        <tr>
-                            <th>کد پرسنلی</th>
-                            <th>نام و نام خانوادگی</th>
-                            <th>کد ملی</th>
-                            <th>نام پدر</th>
-                            <th>آدرس</th>
-                            <th>کد پستی</th>
-                            <th>ایمیل</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {personnelList.map((p) => (
-                            <tr key={p.id}>
-                                <td>{p.personnel_code}</td>
-                                <td>{p.full_name}</td>
-                                <td>{p.national_id}</td>
-                                <td>{p.father_name}</td>
-                                <td>{p.address}</td>
-                                <td>{p.postal_code}</td>
-                                <td>{p.email}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
         </div>
     );
 }

@@ -1,11 +1,14 @@
 # views.py
 from rest_framework import viewsets
-from .models import Warehouse, Product, ProductGroup, Unit, ConsumptionType,Device,Personnel,generate_unique_personnel_code
+from .models import( 
+    Warehouse, Product, ProductGroup, Unit,
+    ConsumptionType,Device,Personnel,generate_unique_personnel_code,
+    Seller,Buyer)
 from .serializer import (
     WarehouseSerializer, ProductSerializer,
     ProductGroupSerializer, UnitSerializer,
     ConsumptionTypeSerializer,DeviceSerializer,
-    PersonnelSerializer
+    PersonnelSerializer,BuyerSerializer,SellerSerializer
 )
 from rest_framework.decorators import api_view,action
 from django.apps import apps
@@ -91,3 +94,19 @@ class PersonnelViewSet(viewsets.ModelViewSet):
 def generate_personnel_code(request):
     code = generate_unique_personnel_code()
     return Response({"personnel_code": code})
+
+
+
+
+
+
+
+class SellerViewSet(viewsets.ModelViewSet):
+    queryset = Seller.objects.all()
+    serializer_class = SellerSerializer
+
+
+
+class BuyerViewSet(viewsets.ModelViewSet):
+    queryset = Buyer.objects.all()
+    serializer_class = BuyerSerializer

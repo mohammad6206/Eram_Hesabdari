@@ -10,6 +10,8 @@ router.register(r'units', views.UnitViewSet, basename='unit')
 router.register(r'consumption-types', views.ConsumptionTypeViewSet, basename='consumption-type')
 router.register(r'devices',views.DeviceViewSet, basename='device')
 router.register(r'personnels', views.PersonnelViewSet, basename='personnel')
+router.register(r'sellers', views.SellerViewSet, basename='seller')
+router.register(r'buyers', views.BuyerViewSet, basename='buyer')
 
 urlpatterns = [
     path('personnels/generate_code/', views.generate_personnel_code, name='generate-personnel-code'),

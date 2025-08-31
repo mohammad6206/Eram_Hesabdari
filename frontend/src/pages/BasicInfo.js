@@ -1,4 +1,3 @@
-// src/pages/BasicInfo.js
 import React from "react";
 import { Link } from "react-router-dom";
 import {
@@ -13,14 +12,15 @@ import {
   FaLayerGroup,
   FaCogs,
   FaLaptop,
- 
+  FaUserPlus,
+  FaUserTie,
 } from "react-icons/fa";
 import "../styles/basicinfo.css"; // فایل CSS جدا
 
 function BasicInfo() {
   const buttons = [
-    { label: "تعریف خریداران", icon: <FaUsers />, to: "#" },
-    { label: "تعریف فروشندکان", icon: <FaUsers />, to: "#" },
+    { label: "تعریف خریداران", icon: <FaUserPlus  />, to: "/buyer" },
+    { label: "تعریف تامین‌کننده", icon: <FaUserTie  />, to: "/seller" },
     { label: "تعریف پرسنل", icon: <FaUsers />, to: "/Personnel" },
     { label: "تعریف انبار", icon: <FaWarehouse />, to: "/warehouse" },
     { label: "گروه کالا", icon: <FaLayerGroup />, to: "/product-group" },

@@ -1,21 +1,61 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Logo from "../assets/Logo.svg";
 
 export default function PurchaseInvoice() {
     const [rows, setRows] = useState([{}]);
     const [sellerId, setSellerId] = useState("");
-    const [buyerId, setBuyerId] = useState("");
+    const [buyerId, setBuyerId] = useState(null);
+    const [personnel, setPersonnel] = useState([]);
+    const API_URL = process.env.REACT_APP_API_URL;
+    const SectionBox = ({ title, selected, setId, id, data }) => {
+        return (
+            <div className="section-box" style={{ margin: "20px 0" }}>
+                <h3>{title}</h3>
+                <select
+                    value={id || ""}
+                    onChange={(e) => setId(Number(e.target.value))}
+                    style={{ padding: "8px", borderRadius: "5px", minWidth: "200px" }}
+                >
+                    <option value="">انتخاب کنید...</option>
+                    {data && data.length > 0 ? (
+                        data.map((item) => (
+                            <option key={item.id} value={item.id}>
+                                {item.full_name}
+                            </option>
+                        ))
+                    ) : (
+                        <option disabled>در حال بارگذاری...</option>
+                    )}
+                </select>
 
-    const personnel = [
-        { id: 1, name: "علی رضایی", phone: "09120000001", email: "ali@email.com", address: "تهران - خیابان آزادی", position: "مدیر فروش" },
-        { id: 2, name: "زهرا موسوی", phone: "09120000002", email: "zahra@email.com", address: "اصفهان - چهارباغ بالا", position: "کارشناس خرید" },
-        { id: 3, name: "محمد کریمی", phone: "09120000003", email: "mohammad@email.com", address: "شیراز - خیابان زند", position: "مدیرعامل" },
-    ];
+                {selected && selected.full_name && (
+                    <div style={{ marginTop: "15px", padding: "10px", border: "1px solid #ccc", borderRadius: "5px" }}>
+                        <p><strong>نام و نام خانوادگی:</strong> {selected.full_name}</p>
+                        <p><strong>کد پرسنلی:</strong> {selected.personnel_code}</p>
+                        <p><strong>کد ملی:</strong> {selected.national_id}</p>
+                        <p><strong>نام پدر:</strong> {selected.father_name}</p>
+                        <p><strong>آدرس:</strong> {selected.address}</p>
+                        <p><strong>کد پستی:</strong> {selected.postal_code}</p>
+                        <p><strong>ایمیل:</strong> {selected.email}</p>
+                        <p><strong>سمت:</strong> {selected.position || "-"}</p>
+                    </div>
+                )}
+            </div>
+        );
+    };
 
-    const selectedSeller = personnel.find((p) => p.id === parseInt(sellerId)) || {};
-    const selectedBuyer = personnel.find((p) => p.id === parseInt(buyerId)) || {};
+
+    const selectedSeller = personnel.find((p) => p.id === parseInt(sellerId));
+    const selectedBuyer = personnel.find((p) => p.id === buyerId);
 
     const addRow = () => setRows([...rows, {}]);
+    // گرفتن دیتا از جدول personnel
+    useEffect(() => {
+        fetch(`${API_URL}/api/personnels/`) // آدرس API جنگو
+            .then((res) => res.json())
+            .then((data) => setPersonnel(data))
+            .catch((err) => console.error("خطا در گرفتن personnel:", err));
+    }, []);
 
     return (
         <div
@@ -72,10 +112,16 @@ export default function PurchaseInvoice() {
             </div>
 
             {/* فروشنده */}
-            <SectionBox title="فروشنده" selected={selectedSeller} setId={setSellerId} id={sellerId} personnel={personnel} />
+            <SectionBox title="تامین کننده" selected={selectedSeller} setId={setSellerId} id={sellerId} personnel={personnel} />
 
             {/* خریدار */}
-            <SectionBox title="خریدار" selected={selectedBuyer} setId={setBuyerId} id={buyerId} personnel={personnel} />
+            <SectionBox
+                title="خریدار شرکت"
+                selected={selectedBuyer}
+                setId={setBuyerId}
+                id={buyerId}
+                data={personnel}
+            />
 
             {/* جدول کالاها */}
             <table
@@ -87,7 +133,7 @@ export default function PurchaseInvoice() {
                 }}
             >
                 <thead style={{ backgroundColor: "#27ae60", color: "#fff" }}>
-                    <tr>
+                    <tr style={{ height: "50px" }}> {/* افزایش ارتفاع ردیف */}
                         {[
                             "ردیف",
                             "نام کالا",
@@ -105,9 +151,11 @@ export default function PurchaseInvoice() {
                                 key={i}
                                 style={{
                                     border: "1px solid #ccc",
-                                    padding: "8px",
+                                    padding: "12px",       // افزایش فاصله داخلی
                                     textAlign: "center",
                                     fontWeight: "bold",
+                                    fontSize: "1.1rem",    // بزرگ‌تر کردن فونت
+                                    letterSpacing: "0.5px" // کمی فاصله بین حروف
                                 }}
                             >
                                 {title}
@@ -115,6 +163,7 @@ export default function PurchaseInvoice() {
                         ))}
                     </tr>
                 </thead>
+
                 <tbody>
                     {rows.map((_, rowIndex) => (
                         <tr key={rowIndex}>

@@ -106,8 +106,6 @@ function Product() {
       model: newProduct.model || "",
       device: newProduct.device || null,
       group: newProduct.group || null,
-      unit: newProduct.unit || null,
-      quantity: toInt(newProduct.quantity),
       registration_date: newProduct.registration_date || null,
       description: newProduct.description || "",
     };
@@ -205,7 +203,7 @@ function Product() {
         <input
           type="text"
           className="form-input"
-          placeholder="مدل"
+          placeholder="کد اختصاصی"
           value={newProduct.model}
           onChange={(e) => setNewProduct({ ...newProduct, model: e.target.value })}
         />
@@ -221,23 +219,6 @@ function Product() {
           ))}
         </select>
 
-        <input
-          type="number"
-          className="form-input"
-          placeholder="تعداد"
-          value={newProduct.quantity}
-          onChange={(e) => setNewProduct({ ...newProduct, quantity: e.target.value })}
-        />
-        <select
-          className="form-input"
-          value={newProduct.unit}
-          onChange={(e) => setNewProduct({ ...newProduct, unit: e.target.value })}
-        >
-          <option value="" hidden>واحد کالا</option>
-          {units.map((u) => (
-            <option key={u.id} value={u.id}>{u.title}</option>
-          ))}
-        </select>
 
 
         <DatePicker
@@ -266,17 +247,15 @@ function Product() {
       </div>
 
       {/* جدول کالاها */}
-      <div className="table-wrapper">
+      <div className="table-wrapper" style={{ marginTop: '30px' }}>
         <table className="custom-table">
           <thead>
             <tr>
               <th>شماره کالا</th>
               <th>دستگاه</th>
               <th>نام کالا</th>
-              <th>مدل</th>
+              <th>کد اختصاصی</th>
               <th>گروه کالا</th>
-              <th>تعداد</th>
-              <th>واحد کالا</th>
               <th>تاریخ ثبت</th>
               <th>توضیحات</th>
               <th>عملیات</th>
@@ -334,26 +313,6 @@ function Product() {
                       </select>
                     </td>
                     <td>
-                      <input
-                        type="number"
-                        className="edit-input"
-                        value={editingProduct?.quantity ?? ""}
-                        onChange={(e) => setEditingProduct({ ...editingProduct, quantity: e.target.value })}
-                      />
-                    </td>
-                    <td>
-                      <select
-                        className="edit-input"
-                        value={editingProduct?.unit || ""}
-                        onChange={(e) => setEditingProduct({ ...editingProduct, unit: e.target.value })}
-                      >
-                        <option value="">—</option>
-                        {units.map((u) => (
-                          <option key={u.id} value={u.id}>{u.title}</option>
-                        ))}
-                      </select>
-                    </td>
-                    <td>
                       <DatePicker
                         value={editingProduct?.registration_date}
                         onChange={(date) =>
@@ -388,8 +347,6 @@ function Product() {
                     <td>{p.name}</td>
                     <td>{p.model || "-"}</td>
                     <td>{nameOf(p.group, groups, "title")}</td>
-                    <td>{p.quantity}</td>
-                    <td>{nameOf(p.unit, units, "title")}</td>
                     <td>{p.registration_date || "-"}</td>
                     <td className="text-muted">{p.description || "-"}</td>
                     <td className="nowrap">
