@@ -19,9 +19,9 @@ import "../styles/basicinfo.css"; // فایل CSS جدا
 
 function BasicInfo() {
   const buttons = [
-    { label: "تعریف خریداران", icon: <FaUserPlus  />, to: "/buyer" },
-    { label: "تعریف تامین‌کننده", icon: <FaUserTie  />, to: "/seller" },
-    { label: "تعریف پرسنل", icon: <FaUsers />, to: "/Personnel" },
+    { label: "خریداران", icon: <FaUserPlus  />, to: "/buyerList" },
+    { label: "تامین‌کنندگان", icon: <FaUserTie  />, to: "/sellerList" },
+    { label: "پرسنل", icon: <FaUsers />, to: "/Personnel-list" },
     { label: "تعریف انبار", icon: <FaWarehouse />, to: "/warehouse" },
     { label: "گروه کالا", icon: <FaLayerGroup />, to: "/product-group" },
     { label: "تعریف واحد", icon: <FaBalanceScale />, to: "/unit" },

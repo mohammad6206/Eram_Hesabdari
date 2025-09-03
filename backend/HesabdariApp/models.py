@@ -1,6 +1,10 @@
 from django.db import models
 import uuid
 import random
+from django.db import models
+from django.db.models import Sum
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 
 
 class AutoNumberMixin(models.Model):
@@ -84,11 +88,9 @@ class Product(AutoNumberMixin,models.Model):
     number = models.CharField("شماره کالا", max_length=50, unique=True, blank=True, null=True)
     device= models.ForeignKey("Device",verbose_name="عنوان دستگاه", on_delete=models.CASCADE)
     name = models.CharField("نام کالا", max_length=200)
-    model = models.CharField("مدل", max_length=100, blank=True, null=True)
+    product_code = models.CharField("کد اختصاصی", max_length=100, blank=True, null=True)  # <-- همان کد اختصاصی
     group = models.ForeignKey("ProductGroup", verbose_name="گروه کالا", on_delete=models.CASCADE)
-    unit = models.ForeignKey("Unit", verbose_name="واحد کالا", on_delete=models.CASCADE)
     registration_date = models.DateField("تاریخ ثبت", null=True, blank=True)
-    quantity = models.PositiveIntegerField("تعداد", default=0)
     description = models.TextField("توضیحات", blank=True, null=True)
 
     def __str__(self):
@@ -161,7 +163,7 @@ class Personnel(models.Model):
 class Seller(models.Model):
     number_field = "number"
 
-    number = models.CharField("شماره فروشنده", max_length=50, unique=True, blank=True, null=True)
+    number = models.CharField("شماره تامین کننده", max_length=50, unique=True, blank=True, null=True)
     name = models.CharField("نام تامین‌کننده", max_length=255)
     national_id = models.CharField("شناسه ملی", max_length=20, blank=True, null=True)
     economic_code = models.CharField("کد اقتصادی", max_length=50, blank=True, null=True)
@@ -197,3 +199,114 @@ class Buyer(models.Model):
 
     def __str__(self):
         return self.name
+
+
+
+class BuyInvoice(models.Model):
+    invoice_number = models.CharField(max_length=50, unique=True)
+    seller = models.ForeignKey('Seller', on_delete=models.CASCADE)
+    buyer = models.ForeignKey('Personnel', on_delete=models.CASCADE)
+    destination = models.ForeignKey('Warehouse', on_delete=models.SET_NULL, null=True)
+    invoice_file = models.FileField(upload_to='buy_invoice/', null=True, blank=True)
+    total_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Invoice #{self.invoice_number} - {self.seller.name}"
+
+
+class BuyInvoiceItem(models.Model):
+    buy_invoice = models.ForeignKey(BuyInvoice, on_delete=models.CASCADE, related_name='items')
+    row_number = models.PositiveIntegerField()
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    product_code = models.CharField(max_length=100, blank=True, null=True)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    unit_price = models.DecimalField(max_digits=15, decimal_places=2)
+    total_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0)
+    tax_rate = models.DecimalField(max_digits=5, decimal_places=2)
+    tax_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0)
+    final_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0)
+    description = models.TextField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        self.total_amount = self.quantity * self.unit_price
+        self.tax_amount = self.total_amount * (self.tax_rate / 100)
+        self.final_amount = self.total_amount + self.tax_amount
+
+        if not self.row_number:
+            last_row = BuyInvoiceItem.objects.filter(buy_invoice=self.buy_invoice).order_by('-row_number').first()
+            self.row_number = (last_row.row_number + 1) if last_row else 1
+
+        super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['row_number']
+
+    def __str__(self):
+        return f"{self.product.name} - Row {self.row_number}"
+
+
+# سگنال برای بروزرسانی total_amount فاکتور بعد از ثبت یا حذف آیتم
+@receiver([post_save, post_delete], sender=BuyInvoiceItem)
+def update_invoice_total(sender, instance, **kwargs):
+    invoice = instance.buy_invoice
+    invoice.total_amount = invoice.items.aggregate(total=Sum('final_amount'))['total'] or 0
+    invoice.save()
+
+
+
+
+
+class SellInvoice(models.Model):
+    invoice_number = models.CharField(max_length=50, unique=True)
+    buyer = models.ForeignKey('Buyer', on_delete=models.CASCADE)
+    seller = models.ForeignKey('Seller', on_delete=models.CASCADE)
+    destination = models.ForeignKey('Warehouse', on_delete=models.SET_NULL, null=True)
+    invoice_file = models.FileField(upload_to='sell_invoice/', null=True, blank=True)
+    total_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Invoice #{self.invoice_number} - {self.seller.name}"
+
+class SellInvoiceItem(models.Model):
+    sell_invoice = models.ForeignKey(SellInvoice, on_delete=models.CASCADE, related_name='items')
+    row_number = models.PositiveIntegerField()
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    product_code = models.CharField(max_length=100, blank=True, null=True)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    unit_price = models.DecimalField(max_digits=15, decimal_places=2)
+    total_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0)
+    tax_rate = models.DecimalField(max_digits=5, decimal_places=2)
+    tax_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0)
+    final_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0)
+    description = models.TextField(blank=True, null=True)
+
+    class Meta:
+        ordering = ['row_number']
+
+    def save(self, *args, **kwargs):
+        # محاسبه خودکار مبالغ
+        self.total_amount = self.quantity * self.unit_price
+        self.tax_amount = self.total_amount * (self.tax_rate / 100)
+        self.final_amount = self.total_amount + self.tax_amount
+
+        # تعیین ردیف خودکار
+        if not self.row_number:
+            last_row = SellInvoiceItem.objects.filter(sell_invoice=self.sell_invoice).order_by('-row_number').first()
+            self.row_number = (last_row.row_number + 1) if last_row else 1
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.product.name} - Row {self.row_number}"
+
+
+# سیگنال برای بروزرسانی total_amount فاکتور بعد از ثبت یا حذف آیتم
+@receiver([post_save, post_delete], sender=SellInvoiceItem)
+def update_invoice_total(sender, instance, **kwargs):
+    invoice = instance.sell_invoice
+    invoice.total_amount = invoice.items.aggregate(total=Sum('final_amount'))['total'] or 0
+    invoice.save()

@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+
 
 export default function PersonnelList() {
     const [personnelList, setPersonnelList] = useState([]);
@@ -32,7 +34,7 @@ export default function PersonnelList() {
 
     const handleDelete = (id) => {
         if (!window.confirm("آیا مطمئن هستید می‌خواهید حذف کنید؟")) return;
-        fetch(`${API_URL}/api/personnels/${id}/`, { method: "DELETE" })
+        fetch(`${API_URL}/api/personnel/${id}/`, { method: "DELETE" })
             .then(() => {
                 setPersonnelList((prevList) => prevList.filter((p) => p.id !== id));
             })
@@ -41,12 +43,12 @@ export default function PersonnelList() {
 
     return (
         <div className="container my-4 p-4 border rounded shadow-sm" dir="rtl">
-            <div className="mt-4 text-start">
-                <button className="btn btn-success" onClick={() => window.history.back()}>
-                    بازگشت
-                </button>
+            <div className="mb-3 text-start">
+                <Link to="/personnel" className="btn btn-success">
+                    ثبت پرسنل جدید
+                </Link>
             </div>
-            <h2 className="text-center mb-4">لیست پرسنل ثبت شده</h2>
+            <h2 className="text-center mb-4">لیست پرسنل</h2>
 
             <div className="table-responsive">
                 <table className="table table-striped table-bordered text-end">

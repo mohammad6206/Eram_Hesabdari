@@ -73,9 +73,10 @@ export default function Seller() {
 
     return (
         <div className="container my-4 p-4 border rounded shadow-sm" dir="rtl">
+            {/* لینک بازگشت */}
             <div className="mb-3 text-start">
-                <Link to="/sellerlist" className="btn btn-success">
-                    لیست فروشندگان
+                <Link to="/sellerList" className="btn btn-success">
+                    بازگشت
                 </Link>
             </div>
 

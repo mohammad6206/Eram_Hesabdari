@@ -48,7 +48,7 @@ export default function Buyer() {
             {/* لینک بازگشت به فرم ثبت خریدار */}
             <div className="mb-3 text-start">
                 <Link to="/buyer" className="btn btn-success">
-                    بازگشت    
+                    ثبت خریدار جدید
                 </Link>
             </div>
 
@@ -95,18 +95,27 @@ export default function Buyer() {
                     <div className="modal-dialog" role="document">
                         <div className="modal-content" dir="rtl">
                             <div className="modal-header">
-                                <h5 className="modal-title text-center">ویرایش {selectedBuyer.name}</h5>
                                 <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
+                                <h5 className="modal-title text-center">ویرایش {selectedBuyer.name}</h5>
                             </div>
                             <div className="modal-body">
-                                {["name", "contact_phone", "national_id", "economic_code", "postal_code", "address"].map(field => (
-                                    <div className="mb-3" key={field}>
-                                        <label className="form-label">{field}</label>
+                                {[
+                                    { key: "name", label: "نام مرکز / نام شخص" },
+                                    { key: "contact_phone", label: "شماره تماس" },
+                                    { key: "national_id", label: "شناسه ملی" },
+                                    { key: "economic_code", label: "کد اقتصادی" },
+                                    { key: "postal_code", label: "کد پستی" },
+                                    { key: "address", label: "آدرس" },
+                                ].map(({ key, label }) => (
+                                    <div className="mb-3" key={key}>
+                                        <label className="form-label">{label}</label>
                                         <input
                                             type="text"
                                             className="form-control"
-                                            value={selectedBuyer[field] || ""}
-                                            onChange={(e) => setSelectedBuyer(prev => ({ ...prev, [field]: e.target.value }))}
+                                            value={selectedBuyer[key] || ""}
+                                            onChange={(e) =>
+                                                setSelectedBuyer(prev => ({ ...prev, [key]: e.target.value }))
+                                            }
                                         />
                                     </div>
                                 ))}

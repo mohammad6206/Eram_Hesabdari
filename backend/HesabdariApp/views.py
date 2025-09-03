@@ -3,12 +3,15 @@ from rest_framework import viewsets
 from .models import( 
     Warehouse, Product, ProductGroup, Unit,
     ConsumptionType,Device,Personnel,generate_unique_personnel_code,
-    Seller,Buyer)
+    Seller,Buyer,BuyInvoice,BuyInvoiceItem,
+    SellInvoice,SellInvoiceItem)
 from .serializer import (
     WarehouseSerializer, ProductSerializer,
     ProductGroupSerializer, UnitSerializer,
     ConsumptionTypeSerializer,DeviceSerializer,
-    PersonnelSerializer,BuyerSerializer,SellerSerializer
+    PersonnelSerializer,BuyerSerializer,SellerSerializer,
+    BuyInvoiceSerializer,BuyInvoiceItemSerializer,
+    SellInvoiceItemSerializer,SellInvoiceSerializer
 )
 from rest_framework.decorators import api_view,action
 from django.apps import apps
@@ -110,3 +113,26 @@ class SellerViewSet(viewsets.ModelViewSet):
 class BuyerViewSet(viewsets.ModelViewSet):
     queryset = Buyer.objects.all()
     serializer_class = BuyerSerializer
+
+
+
+
+
+class BuyInvoiceViewSet(viewsets.ModelViewSet):
+    queryset = BuyInvoice.objects.all()
+    serializer_class = BuyInvoiceSerializer
+
+
+class BuyInvoiceItemViewSet(viewsets.ModelViewSet):
+    queryset = BuyInvoiceItem.objects.all()
+    serializer_class = BuyInvoiceItemSerializer
+
+
+class SellInvoiceViewSet(viewsets.ModelViewSet):
+    queryset = SellInvoice.objects.all()
+    serializer_class = SellInvoiceSerializer
+
+
+class SellInvoiceItemViewSet(viewsets.ModelViewSet):
+    queryset = SellInvoiceItem.objects.all()
+    serializer_class = SellInvoiceItemSerializer

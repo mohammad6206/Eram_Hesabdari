@@ -101,7 +101,7 @@ export default function NewPersonnelForm() {
 
             <div className="mt-4 text-start">
                 <Link to="/personnel-list" className="btn btn-success mb-3">
-                    مشاهده لیست پرسنل
+                    بازگشت
                 </Link>
             </div>
 

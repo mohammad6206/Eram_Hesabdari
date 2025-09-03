@@ -8,7 +8,6 @@ import persian_fa from "react-date-object/locales/persian_fa";
 function Product() {
   const [products, setProducts] = useState([]);
   const [groups, setGroups] = useState([]);
-  const [units, setUnits] = useState([]);
   const [devices, setDevices] = useState([]);
   const [newProductNumber, setNewProductNumber] = useState("");
 
@@ -18,10 +17,8 @@ function Product() {
     number: "",
     device: "",
     name: "",
-    model: "",
+    product_code: "",
     group: "",
-    quantity: "",
-    unit: "",
     registration_date: "",
     description: "",
   });
@@ -59,14 +56,6 @@ function Product() {
     }
   };
 
-  const fetchUnits = async () => {
-    try {
-      const res = await axios.get(`${API_URL}/api/units/`);
-      setUnits(res.data || []);
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   const fetchDevices = async () => {
     try {
@@ -81,7 +70,6 @@ function Product() {
   useEffect(() => {
     fetchProducts();
     fetchGroups();
-    fetchUnits();
     fetchDevices();
     fetchNextProductNumber();
   }, []);
@@ -103,7 +91,7 @@ function Product() {
     const payload = {
       number: newProduct.number,
       name: newProduct.name,
-      model: newProduct.model || "",
+      product_code: newProduct.product_code || "",
       device: newProduct.device || null,
       group: newProduct.group || null,
       registration_date: newProduct.registration_date || null,
@@ -116,10 +104,8 @@ function Product() {
         number: newProductNumber,
         device: "",
         name: "",
-        model: "",
+        product_code: "",
         group: "",
-        unit: "",
-        quantity: "",
         registration_date: "",
         description: "",
       });
@@ -137,11 +123,9 @@ function Product() {
     const payload = {
       number: editingProduct.number,
       name: editingProduct.name,
-      model: editingProduct.model || "",
+      product_code: editingProduct.product_code || "",
       device: editingProduct.device || null,
       group: editingProduct.group || null,
-      unit: editingProduct.unit || null,
-      quantity: toInt(editingProduct.quantity),
       registration_date: editingProduct.registration_date || null,
       description: editingProduct.description || "",
     };
@@ -204,8 +188,8 @@ function Product() {
           type="text"
           className="form-input"
           placeholder="کد اختصاصی"
-          value={newProduct.model}
-          onChange={(e) => setNewProduct({ ...newProduct, model: e.target.value })}
+          value={newProduct.product_code}
+          onChange={(e) => setNewProduct({ ...newProduct, product_code: e.target.value })}
         />
 
         <select
@@ -296,8 +280,8 @@ function Product() {
                     <td>
                       <input
                         className="edit-input"
-                        value={editingProduct?.model || ""}
-                        onChange={(e) => setEditingProduct({ ...editingProduct, model: e.target.value })}
+                        value={editingProduct?.product_code || ""}
+                        onChange={(e) => setEditingProduct({ ...editingProduct, product_code: e.target.value })}
                       />
                     </td>
                     <td>
@@ -345,7 +329,7 @@ function Product() {
                     <td>{p.number}</td>
                     <td>{nameOf(p.device, devices, "title")}</td>
                     <td>{p.name}</td>
-                    <td>{p.model || "-"}</td>
+                    <td>{p.product_code || "-"}</td>
                     <td>{nameOf(p.group, groups, "title")}</td>
                     <td>{p.registration_date || "-"}</td>
                     <td className="text-muted">{p.description || "-"}</td>
@@ -356,7 +340,6 @@ function Product() {
                           setEditingProduct({
                             ...p,
                             group: p.group?.id || p.group || "",
-                            unit: p.unit?.id || p.unit || "",
                           })
                         }
                       >

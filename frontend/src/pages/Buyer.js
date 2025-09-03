@@ -56,7 +56,7 @@ export default function BuyerForm() {
     return (
         <div className="container my-4 p-4 border rounded shadow-sm" dir="rtl">
             <div className="mb-3 text-start">
-                <Link to="/buyerlist" className="btn btn-success">لیست خریداران</Link>
+                <Link to="/buyerlist" className="btn btn-success">بازگشت</Link>
             </div>
 
             <h2 className="text-center mb-4">ثبت خریدار جدید</h2>

@@ -12,6 +12,10 @@ router.register(r'devices',views.DeviceViewSet, basename='device')
 router.register(r'personnels', views.PersonnelViewSet, basename='personnel')
 router.register(r'sellers', views.SellerViewSet, basename='seller')
 router.register(r'buyers', views.BuyerViewSet, basename='buyer')
+router.register(r'buy-invoices', views.BuyInvoiceViewSet, basename='buy-invoice')
+router.register(r'buy-invoice-items', views.BuyInvoiceItemViewSet, basename='buy-invoice-item')
+router.register(r'sell-invoices', views.SellInvoiceViewSet, basename='sell-invoice')
+router.register(r'sell-invoice-items', views.SellInvoiceItemViewSet, basename='sell-invoice-item')
 
 urlpatterns = [
     path('personnels/generate_code/', views.generate_personnel_code, name='generate-personnel-code'),
