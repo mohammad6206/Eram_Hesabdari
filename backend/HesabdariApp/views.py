@@ -1,21 +1,28 @@
+
 # views.py
-from rest_framework import viewsets
+from rest_framework import viewsets,status
 from .models import( 
     Warehouse, Product, ProductGroup, Unit,
     ConsumptionType,Device,Personnel,generate_unique_personnel_code,
     Seller,Buyer,BuyInvoice,BuyInvoiceItem,
-    SellInvoice,SellInvoiceItem)
+    SellInvoice,SellInvoiceItem,PersonnelDocument)
 from .serializer import (
     WarehouseSerializer, ProductSerializer,
     ProductGroupSerializer, UnitSerializer,
     ConsumptionTypeSerializer,DeviceSerializer,
     PersonnelSerializer,BuyerSerializer,SellerSerializer,
     BuyInvoiceSerializer,BuyInvoiceItemSerializer,
-    SellInvoiceItemSerializer,SellInvoiceSerializer
+    SellInvoiceItemSerializer,SellInvoiceSerializer,
+    PersonnelDocumentSerializer
 )
 from rest_framework.decorators import api_view,action
 from django.apps import apps
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
+from django.core.files.storage import default_storage
+import os
+
+
 
 class WarehouseViewSet(viewsets.ModelViewSet):
     queryset = Warehouse.objects.all()
@@ -86,11 +93,6 @@ class DeviceViewSet(viewsets.ModelViewSet):
 
 
 
-class PersonnelViewSet(viewsets.ModelViewSet):
-    queryset =Personnel.objects.all()
-    serializer_class = PersonnelSerializer
-
-
 
 
 @api_view(["GET"])
@@ -136,3 +138,17 @@ class SellInvoiceViewSet(viewsets.ModelViewSet):
 class SellInvoiceItemViewSet(viewsets.ModelViewSet):
     queryset = SellInvoiceItem.objects.all()
     serializer_class = SellInvoiceItemSerializer
+
+
+
+
+
+
+class PersonnelViewSet(viewsets.ModelViewSet):
+    queryset = Personnel.objects.all()
+    serializer_class = PersonnelSerializer
+
+
+class PersonnelDocumentViewSet(viewsets.ModelViewSet):
+    queryset = PersonnelDocument.objects.all()
+    serializer_class = PersonnelDocumentSerializer

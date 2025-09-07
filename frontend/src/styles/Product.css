@@ -17,7 +17,8 @@
 /* دکمه‌ها (افزودن کالا و ...) */
 .form-actions {
     display: flex;
-    justify-content: flex-start; /* چیدمان سمت چپ */
+    justify-content: flex-start;
+    /* چیدمان سمت چپ */
     margin-top: 15px;
 }
 
@@ -32,6 +33,23 @@
 .table-wrapper {
     overflow-x: auto;
 }
+
+.small-select {
+    width: 150px !important;
+    /* عرض دلخواه */
+    min-width: 160px !important;
+    max-width: 160px !important;
+    padding: 4px 25px 4px 8px;
+    /* فاصله داخلی برای فلش */
+    font-size: 0.95rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    appearance: none;
+    /* حذف ظاهر پیش‌فرض مرورگر */
+    background: white url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'><path fill='%23333' d='M7 10l5 5 5-5z'/></svg>") no-repeat right 8px center;
+    background-size: 12px;
+}
+
 
 .custom-table {
     width: 100%;
@@ -78,6 +96,46 @@
 .btn-add:hover {
     background: #16a085;
 }
+
+
+
+.input-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: nowrap;
+    align-items: center;
+    /* اینجا همه عناصر وسط چین میشن */
+}
+
+.btn-fullheight {
+    padding: 15px 25px;
+    display: flex;
+    /* فعال کردن Flexbox */
+    align-items: center;
+    /* وسط‌چین عمودی متن */
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 6px;
+    height: 38px;
+    /* هم‌اندازه با input و select */
+    cursor: pointer;
+    background-color: #1abc9c;
+    color: #fff;
+    border: none;
+    transition: all 0.3s ease;
+
+    margin-right: 100px;
+    /* فاصله از فیلدها به سمت چپ */
+    margin-bottom: 15px;
+    /* بالا بردن کمی دکمه */
+}
+
+.btn-fullheight:hover {
+    background-color: #16a085;
+}
+
+
 
 
 /* دکمه ویرایش */

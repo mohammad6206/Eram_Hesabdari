@@ -34,10 +34,17 @@ class DeviceSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+
 class PersonnelSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Personnel
-        fields = '__all__'
+        fields = "__all__"
+
+
+class PersonnelDocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.PersonnelDocument
+        fields = "__all__"
 
 
 
@@ -57,9 +64,17 @@ class BuyerSerializer(serializers.ModelSerializer):
 
 class BuyInvoiceSerializer(serializers.ModelSerializer):
 
-    seller = serializers.CharField(source="seller.name", read_only=True)
-    buyer = serializers.CharField(source="buyer.full_name", read_only=True)
-    destination = serializers.CharField(source="destination.name", read_only=True)
+    # برای نمایش در GET
+    seller_name = serializers.CharField(source="seller.name", read_only=True)
+    buyer_name = serializers.CharField(source="buyer.full_name", read_only=True)
+    destination_name = serializers.CharField(source="destination.name", read_only=True)
+
+   
+    # برای POST
+    seller = serializers.PrimaryKeyRelatedField(queryset=models.Seller.objects.all())
+    buyer = serializers.PrimaryKeyRelatedField(queryset=models.Personnel.objects.all())
+    destination = serializers.PrimaryKeyRelatedField(queryset=models.Warehouse.objects.all(), required=False, allow_null=True)
+
 
     class Meta:
         model = models.BuyInvoice
@@ -67,8 +82,11 @@ class BuyInvoiceSerializer(serializers.ModelSerializer):
             "id",
             "invoice_number",
             "seller",
+            "seller_name",
             "buyer",
+            "buyer_name",
             "destination",
+            "destination_name",
             "invoice_file",
             "total_amount",
             "created_at",
@@ -105,13 +123,16 @@ class BuyInvoiceItemSerializer(serializers.ModelSerializer):
 
 
 
-
 class SellInvoiceSerializer(serializers.ModelSerializer):
+    # برای نمایش در GET
+    seller_name = serializers.CharField(source="seller.name", read_only=True)
+    buyer_name = serializers.CharField(source="buyer.name", read_only=True)
+    destination_name = serializers.CharField(source="destination.name", read_only=True)
 
-    seller = serializers.CharField(source="seller.name", read_only=True)
-    buyer = serializers.CharField(source="buyer.name", read_only=True)
-    destination = serializers.CharField(source="destination.name", read_only=True)
-
+    # برای POST
+    seller = serializers.PrimaryKeyRelatedField(queryset=models.Seller.objects.all())
+    buyer = serializers.PrimaryKeyRelatedField(queryset=models.Buyer.objects.all())
+    destination = serializers.PrimaryKeyRelatedField(queryset=models.Warehouse.objects.all(), required=False, allow_null=True)
 
     class Meta:
         model = models.SellInvoice
@@ -119,8 +140,11 @@ class SellInvoiceSerializer(serializers.ModelSerializer):
             "id",
             "invoice_number",
             "seller",
+            "seller_name",
             "buyer",
+            "buyer_name",
             "destination",
+            "destination_name",
             "invoice_file",
             "total_amount",
             "created_at",

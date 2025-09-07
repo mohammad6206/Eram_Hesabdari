@@ -1,10 +1,10 @@
-from django.db import models
-import uuid
 import random
 from django.db import models
 from django.db.models import Sum
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
+from .resize import resize_and_crop_high_quality
+import os
 
 
 class AutoNumberMixin(models.Model):
@@ -42,19 +42,19 @@ class AutoNumberMixin(models.Model):
 class Warehouse(AutoNumberMixin, models.Model):
     number_field = "number"
 
-    code = models.UUIDField("کد انبار", default=uuid.uuid4, editable=False, unique=True)
+
     number = models.CharField("شماره انبار", max_length=50, unique=True, blank=True, null=True)
     name = models.CharField("نام انبار", max_length=100)
     phone = models.CharField("تلفن", max_length=20, blank=True, null=True)
 
     def __str__(self):
-        return f"{self.code} - {self.name}"
+        return f"{self.number} - {self.name}"
 
 
 class ProductGroup(AutoNumberMixin, models.Model):
     number_field = "number"
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     number = models.CharField("شماره گروه", max_length=50, unique=True, blank=True, null=True)
     title = models.CharField("عنوان گروه", max_length=100, unique=True)
 
@@ -69,7 +69,7 @@ class ProductGroup(AutoNumberMixin, models.Model):
 class Unit(AutoNumberMixin, models.Model):
     number_field = "number"
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     number = models.CharField("شماره واحد", max_length=50, unique=True, blank=True, null=True)
     title = models.CharField("عنوان واحد", max_length=100, unique=True)
 
@@ -90,8 +90,11 @@ class Product(AutoNumberMixin,models.Model):
     name = models.CharField("نام کالا", max_length=200)
     product_code = models.CharField("کد اختصاصی", max_length=100, blank=True, null=True)  # <-- همان کد اختصاصی
     group = models.ForeignKey("ProductGroup", verbose_name="گروه کالا", on_delete=models.CASCADE)
-    registration_date = models.DateField("تاریخ ثبت", null=True, blank=True)
     description = models.TextField("توضیحات", blank=True, null=True)
+
+    created_at = models.DateTimeField("تاریخ ایجاد", blank=True, null=True)
+    updated_at = models.DateTimeField("تاریخ ویرایش", blank=True, null=True)
+
 
     def __str__(self):
         return f"{self.number} - {self.name}"
@@ -100,7 +103,7 @@ class Product(AutoNumberMixin,models.Model):
 class ConsumptionType(AutoNumberMixin, models.Model):
     number_field = "number"
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     number = models.CharField(" شماره نوع مصرف", max_length=50, unique=True, blank=True, null=True)
     title = models.CharField("عنوان نوع مصرف", max_length=100, unique=True)
 
@@ -131,6 +134,18 @@ def generate_unique_personnel_code():
         if not Personnel.objects.filter(personnel_code=code).exists():
             return code
 
+
+
+
+
+
+def personnel_document_upload_to(instance, filename):
+   
+    personnel_code = instance.personnel.personnel_code or "unknown"
+    doc_type = instance.doc_type
+    return os.path.join("personnel", doc_type, personnel_code, filename)
+
+
 class Personnel(models.Model):
     personnel_code = models.CharField("کد پرسنلی", max_length=5, unique=True, blank=True)
     full_name = models.CharField("نام و نام خانوادگی", max_length=200)
@@ -140,22 +155,38 @@ class Personnel(models.Model):
     postal_code = models.CharField("کد پستی", max_length=20, blank=True, null=True)
     email = models.EmailField("ایمیل", blank=True, null=True)
     birth_certificate_number = models.CharField("شماره شناسنامه", max_length=50, blank=True, null=True)
-    position=models.CharField("سمت", max_length=100, blank=True, null=True)
-    
-    national_card_file = models.FileField("کارت ملی", upload_to="personnel/national_cards/", blank=True, null=True)
-    birth_certificate_file = models.FileField("شناسنامه / کارت دانشجویی / آخرین مدرک", upload_to="personnel/birth_certificates/", blank=True, null=True)
-    vehicle_card_file = models.FileField("کارت خودرو (اختیاری)", upload_to="personnel/vehicle_cards/", blank=True, null=True)
+    position = models.CharField("سمت", max_length=100, blank=True, null=True)
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField("تاریخ ایجاد", blank=True, null=True)
+    updated_at = models.DateTimeField("تاریخ ویرایش", blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.full_name} ({self.personnel_code})"
 
 
+class PersonnelDocument(models.Model):
+    DOC_TYPES = [
+        ("national_card", "کارت ملی"),
+        ("birth_certificate", "شناسنامه / کارت دانشجویی"),
+        ("vehicle_card", "کارت خودرو"),
+    ]
+
+    personnel = models.ForeignKey(Personnel, on_delete=models.CASCADE, related_name="documents")
+    doc_type = models.CharField(max_length=50, choices=DOC_TYPES)
+    file = models.FileField(upload_to=personnel_document_upload_to)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.personnel.full_name} - {self.get_doc_type_display()}"
 
     def save(self, *args, **kwargs):
-        if not self.personnel_code:
-            self.personnel_code = generate_unique_personnel_code()
-        super().save(*args, **kwargs)
+        super().save(*args, **kwargs)  # اول فایل ذخیره بشه
 
+    # فقط روی عکس‌ها ریسایز کنیم
+        if self.file and self.file.name.lower().endswith(('.png', '.jpg', '.jpeg')):
+            file_path = self.file.path
+        # فریم هدف: 800x600
+        resize_and_crop_high_quality(file_path, file_path, size=(800, 600))
 
 
 
@@ -173,8 +204,10 @@ class Seller(models.Model):
     email = models.EmailField("ایمیل", blank=True, null=True)
     phone = models.CharField("شماره تماس", max_length=20, blank=True, null=True)
     website = models.URLField("آدرس وبسایت", blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+
+
+    created_at = models.DateTimeField("تاریخ ایجاد", blank=True, null=True)
+    updated_at = models.DateTimeField("تاریخ ویرایش", blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -194,8 +227,9 @@ class Buyer(models.Model):
     economic_code = models.CharField("کد اقتصادی", max_length=50, blank=True, null=True)
     postal_code = models.CharField("کد پستی", max_length=20, blank=True, null=True)
     address = models.TextField("آدرس", blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+
+    created_at = models.DateTimeField("تاریخ ایجاد", blank=True, null=True)
+    updated_at = models.DateTimeField("تاریخ ویرایش", blank=True, null=True)
 
     def __str__(self):
         return self.name

@@ -93,9 +93,9 @@ export default function BuyInvoiceList() {
                             invoices.map((inv) => (
                                 <tr key={inv.id}>
                                     <td>{inv.invoice_number}</td>
-                                    <td>{inv.buyer}</td>
-                                    <td>{inv.seller}</td>
-                                    <td>{inv.destination}</td>
+                                    <td>{inv.buyer_name}</td>
+                                    <td>{inv.seller_name}</td>
+                                    <td>{inv.destination_name}</td>
                                     <td>{inv.total_amount ? Number(inv.total_amount).toLocaleString("en-US") : "-"}</td>
 
                                     <td>

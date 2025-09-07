@@ -7,6 +7,7 @@ function Device() {
   const [newUnitNumber, setNewUnitNumber] = useState(""); 
   const [newUnitTitle, setNewUnitTitle] = useState("");
   const [editingUnit, setEditingUnit] = useState(null);
+  const [searchText, setSearchText] = useState(""); // 🔹 اضافه شد
 
   const API_URL = process.env.REACT_APP_API_URL;
 
@@ -36,7 +37,6 @@ function Device() {
 
   const handleCreate = async () => {
     if (!newUnitTitle.trim()) return;
-
     try {
       await axios.post(`${API_URL}/api/devices/`, {
         number: newUnitNumber || null,
@@ -53,7 +53,6 @@ function Device() {
 
   const handleUpdate = async () => {
     if (!editingUnit || !editingUnit.title.trim()) return;
-
     try {
       await axios.put(`${API_URL}/api/devices/${editingUnit.id}/`, {
         number: editingUnit.number,
@@ -76,10 +75,30 @@ function Device() {
     }
   };
 
+  // 🔹 فیلتر بر اساس جستجو
+  const filteredUnits = units.filter(u => {
+    const text = searchText.toLowerCase();
+    return (
+      u.title.toLowerCase().includes(text) ||
+      String(u.number).includes(text)
+    );
+  });
+
   return (
     <div className="unit-container" dir="rtl">
       <h2 className="unit-title">مدیریت دستگاه‌ها</h2>
 
+      {/* 🔍 جستجو */}
+      <div className="unit-add" style={{ marginBottom: "15px" }}>
+        <input
+          type="text"
+          placeholder="جستجو بر اساس شماره یا عنوان دستگاه..."
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+        />
+      </div>
+
+      {/* فرم افزودن دستگاه */}
       <div className="unit-add">
         <input
           type="text"
@@ -96,6 +115,7 @@ function Device() {
         <button onClick={handleCreate}>افزودن</button>
       </div>
 
+      {/* جدول */}
       <div className="unit-table-wrapper">
         <table className="unit-table">
           <thead>
@@ -106,7 +126,7 @@ function Device() {
             </tr>
           </thead>
           <tbody>
-            {units.map((u) => (
+            {filteredUnits.map((u) => (
               <tr key={u.id}>
                 <td>
                   {editingUnit?.id === u.id ? (
@@ -166,6 +186,13 @@ function Device() {
                 </td>
               </tr>
             ))}
+            {filteredUnits.length === 0 && (
+              <tr>
+                <td colSpan="3" className="text-center text-muted">
+                  داده‌ای یافت نشد.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

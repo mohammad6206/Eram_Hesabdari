@@ -17,12 +17,49 @@ export default function SellInvoice() {
     const [invoiceData, setInvoiceData] = useState({ destination: null });
     const [rows, setRows] = useState([]);
 
+    // گرفتن داده‌های فروشنده
     useEffect(() => {
-        fetch(`${API_URL}/api/sellers/`).then(res => res.json()).then(setSellers).catch(console.error);
-        fetch(`${API_URL}/api/buyers/`).then(res => res.json()).then(setBuyers).catch(console.error);
-        fetch(`${API_URL}/api/products/`).then(res => res.json()).then(setProducts).catch(console.error);
-        fetch(`${API_URL}/api/warehouses/`).then(res => res.json()).then(setWarehouses).catch(console.error);
+        fetch(`${API_URL}/api/sellers/`)
+            .then(res => res.json())
+            .then(data => setSellers(data))
+            .catch(err => console.error(err));
     }, []);
+
+    // گرفتن داده‌های خریدار
+    useEffect(() => {
+        fetch(`${API_URL}/api/buyers/`)
+            .then(res => res.json())
+            .then(data => setBuyers(data))
+            .catch(err => console.error(err));
+    }, []);
+
+    // گرفتن محصولات
+    useEffect(() => {
+        fetch(`${API_URL}/api/products/`)
+            .then(res => res.json())
+            .then(data => setProducts(data))
+            .catch(err => console.error(err));
+    }, []);
+
+
+
+
+
+    // گرفتن لیست انبارها
+    useEffect(() => {
+        fetch(`${API_URL}/api/warehouses/`)
+            .then(res => res.json())
+            .then(data => setWarehouses(data))
+            .catch(err => console.error("خطا در گرفتن انبارها:", err));
+    }, []);
+
+
+
+
+
+
+
+
 
     const handleInputChange = (index, field, value) => {
         const updatedRows = [...rows];
@@ -44,13 +81,20 @@ export default function SellInvoice() {
 
         setRows(updatedRows);
     };
+
+
+
+
+
     const createInvoice = async () => {
         try {
             const formData = new FormData();
             formData.append("invoice_number", invoiceNumber);
-            formData.append("seller", parseInt(sellerId));
-            formData.append("buyer", parseInt(buyerId));
-            formData.append("destination", invoiceData?.destination?.id || null);
+            formData.append("seller", parseInt(sellerId)); // مطمئن شو عدد است
+            formData.append("buyer", parseInt(buyerId));   // مطمئن شو عدد است
+            if (invoiceData?.destination?.id) {
+                formData.append("destination", invoiceData.destination.id);
+            }
             if (invoiceFile) formData.append("invoice_file", invoiceFile);
 
             const res = await fetch(`${API_URL}/api/sell-invoices/`, {
@@ -74,6 +118,10 @@ export default function SellInvoice() {
             return null;
         }
     };
+
+
+
+
 
     // --- ساخت آیتم‌های فاکتور ---
     const createInvoiceItems = async (invoiceId) => {
@@ -105,8 +153,14 @@ export default function SellInvoice() {
         }
     };
 
-    // --- هندل ثبت ---
+
+
     const handleSubmit = async () => {
+        if (!buyerId || !sellerId) {
+            alert("لطفاً خریدار و فروشنده را انتخاب کنید!");
+            return;
+        }
+
         const invoiceId = await createInvoice();
         if (invoiceId) {
             await createInvoiceItems(invoiceId);
@@ -117,13 +171,15 @@ export default function SellInvoice() {
             setSellerId("");
             setBuyerId("");
             setInvoiceFile(null);
-            if (fileInputRef.current) {
-                fileInputRef.current.value = "";
-            }
+            if (fileInputRef.current) fileInputRef.current.value = "";
             setInvoiceData({ destination: null });
             setRows([]);
         }
     };
+
+
+
+
 
     const formatNumber = (value) => {
         if (value === null || value === undefined || value === "") return "";
@@ -132,8 +188,8 @@ export default function SellInvoice() {
 
     const addRow = () => setRows([...rows, {}]);
 
-    const selectedSeller = sellers.find(s => s.id === sellerId);
-    const selectedBuyer = buyers.find(b => b.id === buyerId);
+    const selectedSeller = sellers.find(s => s.id === parseInt(sellerId));
+    const selectedBuyer = buyers.find(b => b.id === parseInt(buyerId));
 
     return (
         <div style={{ direction: "rtl", fontFamily: "Tahoma, sans-serif", padding: "30px" }}>
@@ -166,23 +222,8 @@ export default function SellInvoice() {
                     style={{ padding: "4px 8px", borderRadius: "4px", border: "1px solid #ccc", width: "200px" }}
                 />
             </div>
-            <SectionBox
-                title="خریدار"
-                selected={selectedBuyer}
-                setId={(val) => setBuyerId(parseInt(val))}
-                id={buyerId}
-                data={buyers}
-                type="buyer"
-            />
-
-            <SectionBox
-                title="تأمین کننده"
-                selected={selectedSeller}
-                setId={(val) => setSellerId(parseInt(val))}
-                id={sellerId}
-                data={sellers}
-                type="seller"
-            />
+            <SectionBox title="خریدار" selected={selectedBuyer} setId={setBuyerId} id={buyerId} data={buyers} type="buyer" />
+            <SectionBox title="تامین کننده" selected={selectedSeller} setId={setSellerId} id={sellerId} data={sellers} type="seller" />
 
             <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px", fontSize: "0.9rem" }}>
                 <thead style={{ backgroundColor: "#27ae60", color: "#fff" }}>

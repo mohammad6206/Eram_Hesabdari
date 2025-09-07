@@ -14,6 +14,7 @@ export default function BuyInvoice() {
     const [personnel, setPersonnel] = useState([]);
     const [products, setProducts] = useState([]);
     const [invoiceFile, setInvoiceFile] = useState(null);
+    const [warehouses, setWarehouses] = useState([]);
     const fileInputRef = useRef(null);
 
     // گرفتن داده‌های فروشنده
@@ -40,6 +41,14 @@ export default function BuyInvoice() {
             .catch(err => console.error(err));
     }, []);
 
+
+    // گرفتن لیست انبارها
+    useEffect(() => {
+        fetch(`${API_URL}/api/warehouses/`)
+            .then(res => res.json())
+            .then(data => setWarehouses(data))
+            .catch(err => console.error("خطا در گرفتن انبارها:", err));
+    }, []);
 
 
     const handleInputChange = (index, field, value) => {
@@ -168,15 +177,6 @@ export default function BuyInvoice() {
         return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     };
 
-    const [warehouses, setWarehouses] = useState([]);
-
-    // گرفتن لیست انبارها
-    useEffect(() => {
-        fetch(`${API_URL}/api/warehouses/`)
-            .then(res => res.json())
-            .then(data => setWarehouses(data))
-            .catch(err => console.error("خطا در گرفتن انبارها:", err));
-    }, []);
 
 
 
@@ -200,11 +200,11 @@ export default function BuyInvoice() {
                 </div>
                 <div style={{ flex: 1, textAlign: "left" }}>
                     <img src={Logo} alt="Logo" style={{ width: "90px", height: "90px" }} />
-                <div className="mb-2 text-start">
-                    <Link to="/BuyInvoiceList" className="btn btn-success">
-                        بازگشت
-                    </Link>
-                </div>
+                    <div className="mb-2 text-start">
+                        <Link to="/BuyInvoiceList" className="btn btn-success">
+                            بازگشت
+                        </Link>
+                    </div>
                 </div>
             </div>
 

@@ -7,6 +7,7 @@ function ConsumptionType() {
   const [newType, setNewType] = useState("");
   const [newConsumptionTypeNumber, setNewConsumptionTypeNumber] = useState(""); // شماره اتوماتیک
   const [editingType, setEditingType] = useState(null);
+  const [searchText, setSearchText] = useState(""); // 🔹 اضافه شد
 
   const API_URL = process.env.REACT_APP_API_URL;
 
@@ -73,9 +74,29 @@ function ConsumptionType() {
     }
   };
 
+  // 🔹 فیلتر بر اساس جستجو
+  const filteredTypes = types.filter(t => {
+    const text = searchText.toLowerCase();
+    return (
+      t.title.toLowerCase().includes(text) ||
+      String(t.number).includes(text)
+    );
+  });
+
   return (
     <div className="page-container" dir="rtl">
       <h2 className="page-title text-end">مدیریت نوع مصرف</h2>
+
+      {/* 🔍 جستجو */}
+      <div className="form-section" style={{ marginBottom: "15px" }}>
+        <input
+          type="text"
+          className="form-input"
+          placeholder="جستجو بر اساس شماره یا نام نوع مصرف..."
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+        />
+      </div>
 
       {/* فرم افزودن نوع مصرف */}
       <div className="form-section">
@@ -109,7 +130,7 @@ function ConsumptionType() {
             </tr>
           </thead>
           <tbody>
-            {types.map((t) => (
+            {filteredTypes.map((t) => (
               <tr key={t.id}>
                 <td>{t.number}</td>
                 <td>
@@ -158,6 +179,13 @@ function ConsumptionType() {
                 </td>
               </tr>
             ))}
+            {filteredTypes.length === 0 && (
+              <tr>
+                <td colSpan="3" className="text-center text-muted">
+                  داده‌ای یافت نشد.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
