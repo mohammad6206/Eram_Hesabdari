@@ -2,18 +2,35 @@
 import React from "react";
 import { Outlet, Link } from "react-router-dom";
 import {
-  FaUser, FaDatabase, FaClipboardList, FaChartBar, FaCogs, FaCog, FaSignOutAlt, FaBoxOpen,FaTachometerAlt  
+  FaUser, FaDatabase, FaClipboardList, FaChartBar, FaCogs, FaCog,
+  FaSignOutAlt, FaBoxOpen, FaTachometerAlt
 } from "react-icons/fa";
+import axiosInstance from "../api/axiosInstance";
 import "../styles/Layout.css";
 
 function Layout() {
+
+  const handleLogout = async () => {
+    const refreshToken = localStorage.getItem("refreshToken");
+    if (refreshToken) {
+      try {
+        await axiosInstance.post("/account/logout/", { refresh: refreshToken });
+      } catch (err) {
+        console.error("خطا در لاگ اوت:", err);
+      }
+    }
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    window.location.href = "/login";
+  };
+
   return (
     <div className="dashboard-container">
       {/* نوار کناری */}
       <aside className="dashboard-sidebar">
         <div className="sidebar-icons" style={{ display: "flex", flexDirection: "column", gap: "20px", alignItems: "center" }}>
           <Link to="/dashboard" className="sidebar-button">
-            <FaTachometerAlt   size={24} />
+            <FaTachometerAlt size={24} />
             <span>داشبورد</span>
           </Link>
 
@@ -48,10 +65,26 @@ function Layout() {
             <FaCog />
             <span>تنظیمات</span>
           </Link>
-          <Link to="#" className="sidebar-button">
+
+          {/* دکمه خروج امن */}
+          <button
+            onClick={handleLogout}
+            className="sidebar-button"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "inherit",
+              font: "inherit",
+              padding: 0,
+            }}
+          >
             <FaSignOutAlt />
             <span>خروج</span>
-          </Link>
+          </button>
         </div>
       </aside>
 

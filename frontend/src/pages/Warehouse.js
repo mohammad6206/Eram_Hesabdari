@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance"; // جایگزین axios
 import "../styles/Warehouse.css";
+import * as bootstrap from 'bootstrap';
+
 
 function Warehouse() {
   const [warehouses, setWarehouses] = useState([]);
@@ -20,7 +22,6 @@ function Warehouse() {
   }, []);
 
   useEffect(() => {
-    // فیلتر بر اساس سرچ
     if (search.trim() === "") {
       setFilteredWarehouses(warehouses);
     } else {
@@ -40,7 +41,7 @@ function Warehouse() {
 
   const fetchNextNumber = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/next-number/Warehouse/`);
+      const res = await axiosInstance.get(`${API_URL}/api/next-number/Warehouse/`);
       setNewWarehouseNumber(res.data.next_number.toString());
     } catch (err) {
       console.error(err);
@@ -51,7 +52,7 @@ function Warehouse() {
 
   const fetchWarehouses = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/warehouses/`);
+      const res = await axiosInstance.get(`${API_URL}/api/warehouses/`);
       setWarehouses(res.data);
       setFilteredWarehouses(res.data);
     } catch (err) {
@@ -66,7 +67,7 @@ function Warehouse() {
       return;
     }
     try {
-      await axios.post(`${API_URL}/api/warehouses/`, {
+      await axiosInstance.post(`${API_URL}/api/warehouses/`, {
         number: newWarehouseNumber || null,
         name: newWarehouseName,
         phone: newWarehousePhone,
@@ -88,14 +89,21 @@ function Warehouse() {
       return;
     }
     try {
-      await axios.put(`${API_URL}/api/warehouses/${editingWarehouse.id}/`, {
+      await axiosInstance.put(`${API_URL}/api/warehouses/${editingWarehouse.id}/`, {
         number: editingWarehouse.number,
         name: editingWarehouse.name,
         phone: editingWarehouse.phone,
       });
+
       showAlert("success", "ویرایش انبار با موفقیت انجام شد");
-      setEditingWarehouse(null);
       fetchWarehouses();
+
+      const modalEl = document.getElementById("editWarehouseModal");
+      const modalInstance = bootstrap.Modal.getInstance(modalEl);
+      if (modalInstance) modalInstance.hide();
+
+      // پاک کردن state بعد از بسته شدن مودال
+      setEditingWarehouse(null);
     } catch (err) {
       console.error(err);
       showAlert("danger", "خطا در ویرایش انبار");
@@ -105,7 +113,7 @@ function Warehouse() {
   const handleDelete = async (id) => {
     if (!window.confirm("آیا مطمئن هستید می‌خواهید حذف کنید؟")) return;
     try {
-      await axios.delete(`${API_URL}/api/warehouses/${id}/`);
+      await axiosInstance.delete(`${API_URL}/api/warehouses/${id}/`);
       showAlert("success", "انبار با موفقیت حذف شد");
       fetchWarehouses();
     } catch (err) {
@@ -118,14 +126,12 @@ function Warehouse() {
     <div className="warehouse-container">
       <h2 className="text-center">مدیریت انبارها</h2>
 
-      {/* Alert */}
       {alert.message && (
         <div className={`alert alert-${alert.type} my-2`} role="alert">
           {alert.message}
         </div>
       )}
 
-      {/* سرچ */}
       <div className="search-bar mb-3">
         <input
           type="text"
@@ -136,7 +142,6 @@ function Warehouse() {
         />
       </div>
 
-      {/* فرم افزودن */}
       <div className="add-warehouse mb-4 d-flex gap-2">
         <input
           type="number"
@@ -164,7 +169,6 @@ function Warehouse() {
         </button>
       </div>
 
-      {/* جدول */}
       <div className="table-wrapper">
         <table className="table table-striped table-bordered text-end">
           <thead className="table-primary text-center">
@@ -178,82 +182,110 @@ function Warehouse() {
           <tbody>
             {filteredWarehouses.map((w) => (
               <tr key={w.id}>
+                <td>{w.number}</td>
+                <td>{w.name}</td>
+                <td>{w.phone}</td>
                 <td>
-                  {editingWarehouse?.id === w.id ? (
-                    <input
-                      type="text"
-                      value={editingWarehouse.number}
-                      onChange={(e) =>
-                        setEditingWarehouse({ ...editingWarehouse, number: e.target.value })
-                      }
-                      className="form-control"
-                    />
-                  ) : (
-                    w.number
-                  )}
-                </td>
-                <td>
-                  {editingWarehouse?.id === w.id ? (
-                    <input
-                      type="text"
-                      value={editingWarehouse.name}
-                      onChange={(e) =>
-                        setEditingWarehouse({ ...editingWarehouse, name: e.target.value })
-                      }
-                      className="form-control"
-                    />
-                  ) : (
-                    w.name
-                  )}
-                </td>
-                <td>
-                  {editingWarehouse?.id === w.id ? (
-                    <input
-                      type="text"
-                      value={editingWarehouse.phone || ""}
-                      onChange={(e) =>
-                        setEditingWarehouse({ ...editingWarehouse, phone: e.target.value })
-                      }
-                      className="form-control"
-                    />
-                  ) : (
-                    w.phone
-                  )}
-                </td>
-                <td>
-                  {editingWarehouse?.id === w.id ? (
-                    <>
-                      <button className="btn btn-primary btn-sm me-1" onClick={handleUpdate}>
-                        ذخیره
-                      </button>
-                      <button
-                        className="btn btn-secondary btn-sm"
-                        onClick={() => setEditingWarehouse(null)}
-                      >
-                        انصراف
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        className="btn btn-warning btn-sm me-1"
-                        onClick={() => setEditingWarehouse(w)}
-                      >
-                        ویرایش
-                      </button>
-                      <button
-                        className="btn btn-danger btn-sm"
-                        onClick={() => handleDelete(w.id)}
-                      >
-                        حذف
-                      </button>
-                    </>
-                  )}
+                  <button
+                    className="btn btn-warning btn-sm "
+                    onClick={() => {
+                      setEditingWarehouse(w);
+                      const modalEl = document.getElementById("editWarehouseModal");
+                      const modalInstance = new bootstrap.Modal(modalEl);
+                      modalInstance.show();
+                    }}
+                  >
+                    ویرایش
+                  </button>
+                  <button
+                    className="btn btn-danger btn-sm"
+                    onClick={() => handleDelete(w.id)}
+                  >
+                    حذف
+                  </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* مودال ویرایش */}
+      <div
+        className="modal fade"
+        id="editWarehouseModal"
+        tabIndex="-1"
+        aria-labelledby="editWarehouseModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog">
+          <div className="modal-content" dir="rtl">
+            <div className="modal-header">
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+                onClick={() => setEditingWarehouse(null)}
+              ></button>
+              <h5
+                className="modal-title w-100 text-center"
+                id="editWarehouseModalLabel"
+              >
+                ویرایش انبار
+              </h5>
+            </div>
+            <div className="modal-body">
+              {editingWarehouse && (
+                <>
+                  <div className="mb-3">
+                    <label className="form-label">نام انبار</label>
+                    <input
+                      className="form-control"
+                      value={editingWarehouse.name}
+                      onChange={(e) =>
+                        setEditingWarehouse({
+                          ...editingWarehouse,
+                          name: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">تلفن انبار</label>
+                    <input
+                      className="form-control"
+                      value={editingWarehouse.phone || ""}
+                      onChange={(e) =>
+                        setEditingWarehouse({
+                          ...editingWarehouse,
+                          phone: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                data-bs-dismiss="modal"
+                onClick={() => setEditingWarehouse(null)}
+              >
+                بستن
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleUpdate}
+              >
+                ذخیره تغییرات
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

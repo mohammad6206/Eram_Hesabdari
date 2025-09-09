@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance"; // جایگزین axios
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import "../styles/Unit.css";
+import * as bootstrap from 'bootstrap';
 
 function Unit() {
   const [units, setUnits] = useState([]);
-  const [newUnitNumber, setNewUnitNumber] = useState(""); // شماره اتوماتیک
+  const [newUnitNumber, setNewUnitNumber] = useState("");
   const [newUnitTitle, setNewUnitTitle] = useState("");
   const [editingUnit, setEditingUnit] = useState(null);
-
-  const [error, setError] = useState(""); // ارور کلی
-  const [newUnitError, setNewUnitError] = useState(""); // ارور فیلد جدید
-  const [search, setSearch] = useState(""); // برای جستجو
+  const [search, setSearch] = useState("");
+  const [error, setError] = useState("");
+  const [newUnitError, setNewUnitError] = useState("");
 
   const API_URL = process.env.REACT_APP_API_URL;
 
@@ -21,7 +22,7 @@ function Unit() {
 
   const fetchNextNumber = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/next-number/Unit/`);
+      const res = await axiosInstance.get(`${API_URL}/api/next-number/Unit/`);
       setNewUnitNumber(res.data.next_number.toString());
       setError("");
     } catch (err) {
@@ -33,7 +34,7 @@ function Unit() {
 
   const fetchUnits = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/units/`);
+      const res = await axiosInstance.get(`${API_URL}/api/units/`);
       setUnits(res.data);
       setError("");
     } catch (err) {
@@ -48,7 +49,7 @@ function Unit() {
       return;
     }
     try {
-      await axios.post(`${API_URL}/api/units/`, {
+      await axiosInstance.post(`${API_URL}/api/units/`, {
         number: newUnitNumber || null,
         title: newUnitTitle,
       });
@@ -63,17 +64,25 @@ function Unit() {
     }
   };
 
+  // تابع بستن مودال
+  const closeModal = () => {
+    const modalEl = document.getElementById("editUnitModal");
+    const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+    modalInstance.hide();
+    setEditingUnit(null);
+  };
+
   const handleUpdate = async () => {
     if (!editingUnit?.title.trim()) {
       setError("نام واحد نمی‌تواند خالی باشد");
       return;
     }
     try {
-      await axios.put(`${API_URL}/api/units/${editingUnit.id}/`, {
+      await axiosInstance.put(`${API_URL}/api/units/${editingUnit.id}/`, {
         number: editingUnit.number,
         title: editingUnit.title,
       });
-      setEditingUnit(null);
+      closeModal();
       fetchUnits();
       setError("");
     } catch (err) {
@@ -85,7 +94,7 @@ function Unit() {
   const handleDelete = async (id) => {
     if (!window.confirm("آیا مطمئن هستید می‌خواهید حذف کنید؟")) return;
     try {
-      await axios.delete(`${API_URL}/api/units/${id}/`);
+      await axiosInstance.delete(`${API_URL}/api/units/${id}/`);
       fetchUnits();
       setError("");
     } catch (err) {
@@ -94,7 +103,6 @@ function Unit() {
     }
   };
 
-  // فیلتر واحدها بر اساس جستجو
   const filteredUnits = units.filter(
     (u) =>
       u.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -105,23 +113,21 @@ function Unit() {
     <div className="unit-container" dir="rtl">
       <h2 className="text-center">مدیریت واحدها</h2>
 
-      {/* ارور کلی */}
       {error && <p className="text-danger text-center">{error}</p>}
 
-      {/* بخش جستجو */}
-      <div className="form-section d-flex align-items-center gap-2 mb-3">
+      {/* جستجو */}
+      <div className="form-section d-flex gap-2 mb-3">
         <input
           type="text"
           className="form-input"
-          placeholder="جستجو..."
+          placeholder="جستجو بر اساس شماره یا نام واحد..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
       {/* فرم افزودن واحد جدید */}
-      <div className="form-section d-flex align-items-center gap-2 mb-3">
-        {/* شماره واحد کوچک */}
+      <div className="form-section d-flex gap-2 mb-3">
         <input
           type="number"
           className="form-input"
@@ -130,24 +136,16 @@ function Unit() {
           onChange={(e) => setNewUnitNumber(e.target.value)}
           style={{ width: "80px" }}
         />
-
-        {/* نام واحد بزرگ */}
-        <div style={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
-          <input
-            type="text"
-            className="form-input"
-            placeholder="نام واحد جدید..."
-            value={newUnitTitle}
-            onChange={(e) => {
-              setNewUnitTitle(e.target.value);
-              if (newUnitError) setNewUnitError("");
-            }}
-            style={{ width: "100%" }}
-          />
-          {newUnitError && <p className="text-danger mt-1">{newUnitError}</p>}
-        </div>
-
-        {/* دکمه افزودن */}
+        <input
+          type="text"
+          className="form-input"
+          placeholder="واحد جدید"
+          value={newUnitTitle}
+          onChange={(e) => {
+            setNewUnitTitle(e.target.value);
+            if (newUnitError) setNewUnitError("");
+          }}
+        />
         <button className="btn btn-add" onClick={handleCreate}>
           افزودن
         </button>
@@ -155,7 +153,7 @@ function Unit() {
 
       {/* جدول واحدها */}
       <div className="unit-table-wrapper">
-        <table className="unit-table">
+        <table className="unit-table text-center">
           <thead>
             <tr>
               <th>شماره واحد</th>
@@ -166,68 +164,93 @@ function Unit() {
           <tbody>
             {filteredUnits.map((u) => (
               <tr key={u.id}>
-                <td>
-                  {editingUnit?.id === u.id ? (
-                    <input
-                      type="number"
-                      className="edit-input"
-                      value={editingUnit.number}
-                      onChange={(e) =>
-                        setEditingUnit({ ...editingUnit, number: e.target.value })
-                      }
-                    />
-                  ) : (
-                    u.number
-                  )}
-                </td>
-                <td>
-                  {editingUnit?.id === u.id ? (
-                    <input
-                      type="text"
-                      className="edit-input"
-                      value={editingUnit.title || ""}
-                      onChange={(e) =>
-                        setEditingUnit({ ...editingUnit, title: e.target.value })
-                      }
-                    />
-                  ) : (
-                    u.title
-                  )}
-                </td>
-                <td>
-                  {editingUnit?.id === u.id ? (
-                    <>
-                      <button className="btn btn-save" onClick={handleUpdate}>
-                        ذخیره
-                      </button>
-                      <button
-                        className="btn btn-cancel"
-                        onClick={() => setEditingUnit(null)}
-                      >
-                        انصراف
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        className="btn btn-edit"
-                        onClick={() => setEditingUnit(u)}
-                      >
-                        ویرایش
-                      </button>
-                      <button
-                        className="btn btn-delete"
-                        onClick={() => handleDelete(u.id)}
-                      >
-                        حذف
-                      </button>
-                    </>
-                  )}
+                <td>{u.number}</td>
+                <td>{u.title}</td>
+                <td className="text-center">
+                  <button
+                    className="btn btn-edit"
+                    onClick={() => {
+                      setEditingUnit(u);
+                      const modalEl = document.getElementById("editUnitModal");
+                      const modalInstance = new bootstrap.Modal(modalEl);
+                      modalInstance.show();
+                    }}
+                  >
+                    ویرایش
+                  </button>
+                  <button
+                    className="btn btn-delete"
+                    onClick={() => handleDelete(u.id)}
+                  >
+                    حذف
+                  </button>
                 </td>
               </tr>
             ))}
+            {filteredUnits.length === 0 && (
+              <tr>
+                <td colSpan="3" className="text-center text-muted">
+                  داده‌ای یافت نشد.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
+      </div>
+
+      {/* مودال ویرایش */}
+      <div
+        className="modal fade"
+        id="editUnitModal"
+        tabIndex="-1"
+        aria-labelledby="editUnitModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog">
+          <div className="modal-content" dir="rtl">
+            <div className="modal-header">
+              <button
+                type="button"
+                className="btn-close"
+                onClick={closeModal}
+              ></button>
+              <h5 className="modal-title w-100 text-center" id="editUnitModalLabel">
+                ویرایش واحد
+              </h5>
+            </div>
+            <div className="modal-body">
+              {editingUnit && (
+                <div className="mb-3">
+                  <label className="form-label">نام واحد</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={editingUnit.title}
+                    onChange={(e) =>
+                      setEditingUnit({ ...editingUnit, title: e.target.value })
+                    }
+                  />
+                </div>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={closeModal}
+              >
+                بستن
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleUpdate}
+              >
+                ذخیره تغییرات
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -39,6 +39,9 @@ INSTALLED_APPS = [
     'HesabdariApp',
     "corsheaders",
     'rest_framework',
+    'account',
+    "rest_framework_simplejwt.token_blacklist",
+
 
 ]
 
@@ -105,9 +108,9 @@ else:
         'HOST': config('DB_HOST'),
         'PORT': config('DB_PORT', default='1433'),
         'OPTIONS': {
-            'driver': 'ODBC Driver 18 for SQL Server',  # یا نسخه‌ای که نصب کردی
-            'Encrypt': 'yes',                  # 👈 روی سرور بهتره TLS روشن باشه
-            'TrustServerCertificate': 'yes',   # موقتاً برای گواهی self-signed
+                'driver': 'ODBC Driver 17 for SQL Server',
+                'Encrypt': 'no',
+                'TrustServerCertificate': 'yes',
         },
     }
 }
@@ -160,6 +163,23 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=24),  # توکن دسترسی تا 24 ساعت معتبر باشه
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),   # توکن رفرش تا 7 روز معتبر باشه
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": True,
+}
+
 
 
 if not DEBUG:

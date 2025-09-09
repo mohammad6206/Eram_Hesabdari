@@ -5,9 +5,6 @@ import {
   FaWarehouse,
   FaBalanceScale,
   FaUsers,
-  FaFileSignature,
-  FaFileExcel,
-  FaTruck,
   FaFire,
   FaLayerGroup,
   FaCogs,
@@ -25,13 +22,13 @@ function BasicInfo() {
     { label: "تعریف انبار", icon: <FaWarehouse />, to: "/warehouse" },
     { label: "گروه کالا", icon: <FaLayerGroup />, to: "/product-group" },
     { label: "تعریف واحد", icon: <FaBalanceScale />, to: "/unit" },
-    { label: "تعریف کالا", icon: <FaBoxOpen />, to: "/product" },
-    { label: "امضا گزارشات", icon: <FaFileSignature />, to: "#" },
-    { label: "ورود کالا از اکسل", icon: <FaFileExcel />, to: "#" },
-    { label: "تعریف رانندگان", icon: <FaTruck />, to: "#" },
     { label: "نوع مصرف", icon: <FaFire />, to: "/consumption-type" },
+    { label: "تعریف کالا", icon: <FaBoxOpen />, to: "/product" },
     { label: "تعریف دستگاه" , icon: <FaLaptop   />, to: "/device" },
     { label: "قطعات دستگاه" , icon: <FaCogs />, to: "/device-part" },
+    // { label: "امضا گزارشات", icon: <FaFileSignature />, to: "#" },
+    // { label: "ورود کالا از اکسل", icon: <FaFileExcel />, to: "#" },
+    // { label: "تعریف رانندگان", icon: <FaTruck />, to: "#" },
 
   ];
 

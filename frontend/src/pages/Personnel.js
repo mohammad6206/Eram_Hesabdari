@@ -5,6 +5,7 @@ import DatePicker from "react-multi-date-picker";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
+import axiosInstance from "../api/axiosInstance";
 
 export default function NewPersonnelForm() {
   const [formData, setFormData] = useState({
@@ -20,7 +21,7 @@ export default function NewPersonnelForm() {
     national_card_files: [],
     birth_certificate_files: [],
     vehicle_card_files: [],
-    created_at: null, // ➕ تاریخ ایجاد
+    created_at: null, // تاریخ ایجاد
   });
 
   const [errors, setErrors] = useState({});
@@ -31,16 +32,22 @@ export default function NewPersonnelForm() {
 
   // گرفتن لیست پرسنل
   const fetchPersonnel = async () => {
-    const res = await fetch(`${API_URL}/api/personnels/`);
-    const data = await res.json();
-    setPersonnelList(data);
+    try {
+      const res = await axiosInstance.get("personnels/");
+      setPersonnelList(res.data);
+    } catch (err) {
+      console.error("خطا در دریافت پرسنل:", err.response?.data || err);
+    }
   };
 
-  // گرفتن کد پرسنلی یونیک از سرور
+  // گرفتن کد پرسنلی یونیک
   const fetchUniqueCode = async () => {
-    const res = await fetch(`${API_URL}/api/personnels/generate_code/`);
-    const data = await res.json();
-    setFormData((prev) => ({ ...prev, personnel_code: data.personnel_code }));
+    try {
+      const res = await axiosInstance.get("personnels/generate_code/");
+      setFormData((prev) => ({ ...prev, personnel_code: res.data.personnel_code }));
+    } catch (err) {
+      console.error("خطا در گرفتن کد پرسنلی:", err.response?.data || err);
+    }
   };
 
   useEffect(() => {
@@ -85,21 +92,21 @@ export default function NewPersonnelForm() {
       for (let key in formData) {
         if (!key.endsWith("_files") && formData[key]) {
           if (key === "created_at") {
-            data.append(key, formData[key].toDate().toISOString()); // تاریخ به فرمت ISO
+            data.append(key, formData[key].toDate().toISOString());
           } else {
             data.append(key, formData[key]);
           }
         }
       }
 
-      const res = await fetch(`${API_URL}/api/personnels/`, {
-        method: "POST",
-        body: data,
-      });
-
-      if (!res.ok) throw new Error("خطا در ثبت پرسنل");
-
-      const newPersonnel = await res.json();
+      let newPersonnel;
+      try {
+        const res = await axiosInstance.post("personnels/", data);
+        newPersonnel = res.data; // داده‌های پرسنل جدید
+      } catch (err) {
+        console.error("خطا در ثبت پرسنل:", err.response?.data || err);
+        throw new Error("خطا در ثبت پرسنل");
+      }
 
       // 2️⃣ ثبت مدارک جداگانه
       const fileFields = [
@@ -117,10 +124,7 @@ export default function NewPersonnelForm() {
             fileData.append("personnel", newPersonnel.id);
             fileData.append("doc_type", doc_type);
 
-            await fetch(`${API_URL}/api/documents/`, {
-              method: "POST",
-              body: fileData,
-            });
+            await axiosInstance.post("documents/", fileData);
           }
         }
       }
@@ -177,7 +181,6 @@ export default function NewPersonnelForm() {
 
       <h2 className="text-center mb-4">تعریف پرسنل جدید</h2>
       <form onSubmit={handleSubmit}>
-        {/* کد پرسنلی */}
         <div className="mb-3 text-end">
           <label className="form-label fw-bold">کد پرسنلی :</label>
           <input

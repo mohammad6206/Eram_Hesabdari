@@ -5,6 +5,7 @@ import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
 import { PhotoProvider, PhotoSlider } from "react-photo-view";
 import "react-photo-view/dist/react-photo-view.css";
+import axiosInstance from "../api/axiosInstance";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -21,7 +22,7 @@ const formatDateTime = (dateString) => {
         hour: "2-digit",
         minute: "2-digit",
     });
-    return `${faDate} ${faTime}`;
+    return `${faTime} ${faDate}`;
 };
 
 export default function PersonnelList() {
@@ -43,16 +44,18 @@ export default function PersonnelList() {
 
     const activeDocs = personnelDocs.filter((doc) => doc.doc_type === activeDoc);
 
-    // 📌 دریافت لیست پرسنل
-    const fetchPersonnels = () => {
-        fetch(`${API_URL}/api/personnels/`)
-            .then((res) => res.json())
-            .then((data) => {
-                setPersonnelList(data);
-                setFilteredList(data);
-            })
-            .catch((err) => console.error(err));
+    const fetchPersonnels = async () => {
+        try {
+            const res = await axiosInstance.get("personnels/");
+            setPersonnelList(res.data);
+            setFilteredList(res.data);
+        } catch (err) {
+            console.error(err.response?.data || err);
+            setPersonnelList([]);
+            setFilteredList([]);
+        }
     };
+
 
     useEffect(() => {
         fetchPersonnels();
@@ -107,17 +110,14 @@ export default function PersonnelList() {
         setShowModal(true);
     };
 
-    // 📌 دریافت مدارک پرسنل
+
     const loadPersonnelDocs = async (personId, docType) => {
         try {
-            const res = await fetch(
-                `${API_URL}/api/documents/?personnels=${personId}&doc_type=${docType}`
-            );
-            const data = await res.json();
-            setPersonnelDocs(data);
+            const res = await axiosInstance.get(`documents/?personnels=${personId}&doc_type=${docType}`);
+            setPersonnelDocs(res.data);
             setSelectedFileIndex(null);
         } catch (err) {
-            console.error(err);
+            console.error(err.response?.data || err);
         }
     };
 
@@ -129,7 +129,6 @@ export default function PersonnelList() {
         }
     };
 
-    // 📌 آپلود چند فایل
     const handleUploadNewDocs = async (e) => {
         if (!selectedPersonnel) return;
         const files = Array.from(e.target.files);
@@ -142,41 +141,34 @@ export default function PersonnelList() {
             formData.append("doc_type", activeDoc);
 
             try {
-                const res = await fetch(`${API_URL}/api/documents/`, {
-                    method: "POST",
-                    body: formData,
-                });
-                const data = await res.json();
-                newDocs.push(data);
+                const res = await axiosInstance.post("documents/", formData);
+                newDocs.push(res.data);
             } catch (err) {
-                console.error(err);
+                console.error(err.response?.data || err);
             }
         }
 
         setPersonnelDocs((prev) => [...prev, ...newDocs]);
     };
 
-    // 📌 حذف فایل
     const handleDeleteDoc = async (docId) => {
         try {
-            await fetch(`${API_URL}/api/documents/${docId}/`, {
-                method: "DELETE",
-            });
+            await axiosInstance.delete(`documents/${docId}/`);
             setPersonnelDocs((prev) => prev.filter((d) => d.id !== docId));
             setSelectedFileIndex(null);
         } catch (err) {
-            console.error(err);
+            console.error(err.response?.data || err);
         }
     };
 
-    // 📌 حذف پرسنل
-    const handleDeletePersonnel = (id) => {
+    const handleDeletePersonnel = async (id) => {
         if (!window.confirm("آیا مطمئن هستید می‌خواهید حذف کنید؟")) return;
-        fetch(`${API_URL}/api/personnels/${id}/`, { method: "DELETE" })
-            .then(() =>
-                setPersonnelList((prev) => prev.filter((p) => p.id !== id))
-            )
-            .catch((err) => console.error(err));
+        try {
+            await axiosInstance.delete(`personnels/${id}/`);
+            setPersonnelList((prev) => prev.filter((p) => p.id !== id));
+        } catch (err) {
+            console.error(err.response?.data || err);
+        }
     };
 
     return (
@@ -473,7 +465,7 @@ export default function PersonnelList() {
                                                         updated_at: new Date().toISOString(), // آپدیت خودکار تاریخ ویرایش
                                                     }))
                                                 }
-                                                format="YYYY/MM/DD"
+                                                format="HH:mm YYYY/MM/DD"
                                                 render={(value, openCalendar) => (
                                                     <input
                                                         className="form-control"
@@ -623,31 +615,33 @@ export default function PersonnelList() {
 
                             {/* فوتر */}
                             <div className="modal-footer flex justify-center gap-3">
-                                {isEditModal && (
-                                    <button
-                                        className="btn btn-primary"
-                                        onClick={() => {
-                                            fetch(`${API_URL}/api/personnels/${selectedPersonnel.id}/`, {
-                                                method: "PUT",
-                                                headers: { "Content-Type": "application/json" },
-                                                body: JSON.stringify(selectedPersonnel),
-                                            })
-                                                .then(() => {
-                                                    fetchPersonnels();
-                                                    setShowModal(false);
-                                                })
-                                                .catch((err) => console.error(err));
-                                        }}
-                                    >
-                                        ذخیره تغییرات
-                                    </button>
-                                )}
                                 <button
                                     className="btn btn-secondary"
                                     onClick={() => setShowModal(false)}
                                 >
                                     بستن
                                 </button>
+                                {isEditModal && (
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={async () => {
+                                            try {
+                                                await axiosInstance.put(
+                                                    `personnels/${selectedPersonnel.id}/`,
+                                                    selectedPersonnel
+                                                );
+                                                fetchPersonnels();
+                                                setShowModal(false);
+                                            } catch (err) {
+                                                console.error("خطا در ذخیره تغییرات:", err.response?.data || err);
+                                                alert("خطا در ذخیره تغییرات");
+                                            }
+                                        }}
+                                    >
+                                        ذخیره تغییرات
+                                    </button>
+
+                                )}
                             </div>
                         </div>
                     </div>

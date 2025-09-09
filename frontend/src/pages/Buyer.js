@@ -1,12 +1,11 @@
 // BuyerForm.js
 import { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance"; // جایگزین axios
 import { Link } from "react-router-dom";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
 
-const API_URL = process.env.REACT_APP_API_URL;
 
 export default function BuyerForm() {
     const [selectedBuyer, setSelectedBuyer] = useState({
@@ -23,14 +22,13 @@ export default function BuyerForm() {
 
     const fetchNextNumber = async () => {
         try {
-            const res = await axios.get(`${API_URL}/api/next-number/Buyer/`);
+            const res = await axiosInstance.get("next-number/Buyer/");
             setSelectedBuyer(prev => ({ ...prev, number: res.data.next_number }));
         } catch (err) {
             console.error(err);
             setSelectedBuyer(prev => ({ ...prev, number: "" }));
         }
     };
-
     useEffect(() => {
         fetchNextNumber();
     }, []);
@@ -58,11 +56,8 @@ export default function BuyerForm() {
             updated_at: null
         };
 
-
         try {
-            const res = await axios.post(`${API_URL}/api/buyers/`, payload, {
-                headers: { "Content-Type": "application/json" }
-            });
+            const res = await axiosInstance.post("buyers/", payload);
             alert(`خریدار ثبت شد. شماره: ${res.data.number}`);
             setSelectedBuyer({
                 number: "",

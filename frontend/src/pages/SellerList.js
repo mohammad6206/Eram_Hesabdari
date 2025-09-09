@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
+import axiosInstance from "../api/axiosInstance";
+
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -19,7 +21,7 @@ const formatDateTime = (dateString) => {
         hour: "2-digit",
         minute: "2-digit",
     });
-    return `${faDate} ${faTime}`;
+    return `${faTime} ${faDate}`;
 };
 
 export default function SellerList() {
@@ -33,15 +35,17 @@ export default function SellerList() {
     const [dateFilter, setDateFilter] = useState({ from: null, to: null });
     const [dateField, setDateField] = useState("created_at");
 
-    // دریافت لیست فروشندگان
-    const fetchSellers = () => {
-        fetch(`${API_URL}/api/sellers/`)
-            .then(res => res.json())
-            .then(data => {
-                setSellerList(data);
-                setFilteredList(data);
-            })
-            .catch(err => console.error("خطا در دریافت فروشندگان:", err));
+    const fetchSellers = async () => {
+        try {
+            const res = await axiosInstance.get("sellers/"); // baseURL تو axiosInstance تنظیم شده
+            const sellersArray = Array.isArray(res.data) ? res.data : res.data.results || [];
+            setSellerList(sellersArray);
+            setFilteredList(sellersArray);
+        } catch (err) {
+            console.error("خطا در دریافت فروشندگان:", err);
+            setSellerList([]);
+            setFilteredList([]);
+        }
     };
 
     useEffect(() => {
@@ -84,15 +88,17 @@ export default function SellerList() {
         setShowModal(true);
     };
 
-    // حذف فروشنده
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
         if (!window.confirm("آیا مطمئن هستید که می‌خواهید این تامین‌کننده را حذف کنید؟")) return;
-        fetch(`${API_URL}/api/sellers/${id}/`, { method: "DELETE" })
-            .then(res => {
-                if (!res.ok) throw new Error("خطا در حذف فروشنده");
-                fetchSellers();
-            })
-            .catch(err => console.error("خطا:", err));
+
+        try {
+            await axiosInstance.delete(`sellers/${id}/`);
+            // بعد از حذف موفق، لیست را بروزرسانی کن
+            fetchSellers();
+        } catch (err) {
+            console.error("خطا در حذف فروشنده:", err.response?.data || err);
+            alert("حذف فروشنده با مشکل مواجه شد");
+        }
     };
 
     return (
@@ -177,9 +183,21 @@ export default function SellerList() {
                                 <td>{s.website}</td>
                                 <td>{formatDateTime(s.created_at)}</td>
                                 <td>{formatDateTime(s.updated_at)}</td>
-                                <td>
-                                    <button className="btn btn-warning btn-sm me-2" onClick={() => handleEdit(s)}>ویرایش</button>
-                                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(s.id)}>حذف</button>
+                                <td className="text-center align-middle">
+                                    <div className="d-flex flex-column justify-content-center align-items-center gap-2">
+                                        <button
+                                            className="btn btn-warning btn-sm w-100"
+                                            onClick={() => handleEdit(s)}
+                                        >
+                                            ویرایش
+                                        </button>
+                                        <button
+                                            className="btn btn-danger btn-sm w-100"
+                                            onClick={() => handleDelete(s.id)}
+                                        >
+                                            حذف
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}
@@ -194,7 +212,7 @@ export default function SellerList() {
                         <div className="modal-content" dir="rtl">
                             <div className="modal-header">
                                 <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
-                                <h5 className="modal-title text-center">ویرایش {selectedSeller.name}</h5>
+                                <h5 className="modal-title text-center w-100">ویرایش {selectedSeller.name}</h5>
                             </div>
                             <div className="modal-body">
                                 <div className="row">
@@ -242,7 +260,7 @@ export default function SellerList() {
                                                     updated_at: new Date().toISOString()
                                                 }))
                                             }
-                                            format="YYYY/MM/DD"
+                                            format="HH:mm YYYY/MM/DD"
                                             render={(value, openCalendar) => (
                                                 <input
                                                     className="form-control"
@@ -272,28 +290,32 @@ export default function SellerList() {
                                 <button className="btn btn-secondary" onClick={() => setShowModal(false)}>لغو</button>
                                 <button
                                     className="btn btn-primary"
-                                    onClick={() => {
+                                    onClick={async () => {
+                                        if (!selectedSeller) return;
+
+                                        // آماده‌سازی payload
                                         const payload = {
                                             ...selectedSeller,
-                                            created_at: selectedSeller.created_at instanceof Date
-                                                ? selectedSeller.created_at.toISOString()
-                                                : selectedSeller.created_at,
-                                            updated_at: new Date().toISOString()
+                                            created_at:
+                                                selectedSeller.created_at instanceof Date
+                                                    ? selectedSeller.created_at.toISOString()
+                                                    : selectedSeller.created_at,
+                                            updated_at: new Date().toISOString(),
                                         };
-                                        fetch(`${API_URL}/api/sellers/${selectedSeller.id}/`, {
-                                            method: "PUT",
-                                            headers: { "Content-Type": "application/json" },
-                                            body: JSON.stringify(payload),
-                                        })
-                                            .then(res => {
-                                                if (!res.ok) throw new Error("خطا در ویرایش فروشنده");
-                                                return res.json();
-                                            })
-                                            .then(() => {
-                                                setShowModal(false);
-                                                fetchSellers();
-                                            })
-                                            .catch(err => console.error(err));
+
+                                        try {
+                                            // درخواست PUT با axiosInstance (توکن خودکار اضافه میشه)
+                                            await axiosInstance.put(`sellers/${selectedSeller.id}/`, payload);
+
+                                            // بستن مودال
+                                            setShowModal(false);
+
+                                            // بروزرسانی لیست فروشندگان
+                                            fetchSellers();
+                                        } catch (err) {
+                                            console.error("خطا در ویرایش فروشنده:", err.response?.data || err);
+                                            alert("ویرایش فروشنده با مشکل مواجه شد");
+                                        }
                                     }}
                                 >
                                     ذخیره تغییرات

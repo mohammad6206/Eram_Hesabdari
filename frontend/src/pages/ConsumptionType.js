@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance"; // جایگزین axios
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import "../styles/ConsumptionType.css";
+import * as bootstrap from 'bootstrap';
 
 function ConsumptionType() {
   const [types, setTypes] = useState([]);
   const [newType, setNewType] = useState("");
-  const [newConsumptionTypeNumber, setNewConsumptionTypeNumber] = useState(""); // شماره اتوماتیک
+  const [newConsumptionTypeNumber, setNewConsumptionTypeNumber] = useState("");
   const [editingType, setEditingType] = useState(null);
-  const [searchText, setSearchText] = useState(""); // 🔹 اضافه شد
+  const [searchText, setSearchText] = useState("");
 
   const API_URL = process.env.REACT_APP_API_URL;
 
@@ -18,7 +20,7 @@ function ConsumptionType() {
 
   const fetchNextNumber = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/next-number/ConsumptionType/`);
+      const res = await axiosInstance.get(`${API_URL}/api/next-number/ConsumptionType/`);
       setNewConsumptionTypeNumber(res.data.next_number.toString());
     } catch (err) {
       console.error(err);
@@ -28,7 +30,7 @@ function ConsumptionType() {
 
   const fetchTypes = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/consumption-types/`);
+      const res = await axiosInstance.get(`${API_URL}/api/consumption-types/`);
       setTypes(res.data);
     } catch (err) {
       console.error(err);
@@ -38,7 +40,7 @@ function ConsumptionType() {
   const handleCreate = async () => {
     if (!newType.trim()) return;
     try {
-      await axios.post(`${API_URL}/api/consumption-types/`, {
+      await axiosInstance.post(`${API_URL}/api/consumption-types/`, {
         number: newConsumptionTypeNumber || null,
         title: newType,
       });
@@ -50,14 +52,22 @@ function ConsumptionType() {
     }
   };
 
+  // تابع بستن مودال
+  const closeModal = () => {
+    const modalEl = document.getElementById("editTypeModal");
+    const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+    modalInstance.hide();
+    setEditingType(null);
+  };
+
   const handleUpdate = async () => {
     if (!editingType?.title.trim()) return;
     try {
-      await axios.put(`${API_URL}/api/consumption-types/${editingType.id}/`, {
+      await axiosInstance.put(`${API_URL}/api/consumption-types/${editingType.id}/`, {
         number: editingType.number,
         title: editingType.title,
       });
-      setEditingType(null);
+      closeModal();
       fetchTypes();
     } catch (err) {
       console.error(err);
@@ -67,14 +77,13 @@ function ConsumptionType() {
   const handleDelete = async (id) => {
     if (!window.confirm("آیا مطمئن هستید می‌خواهید حذف کنید؟")) return;
     try {
-      await axios.delete(`${API_URL}/api/consumption-types/${id}/`);
+      await axiosInstance.delete(`${API_URL}/api/consumption-types/${id}/`);
       fetchTypes();
     } catch (err) {
       console.error(err);
     }
   };
 
-  // 🔹 فیلتر بر اساس جستجو
   const filteredTypes = types.filter(t => {
     const text = searchText.toLowerCase();
     return (
@@ -87,8 +96,8 @@ function ConsumptionType() {
     <div className="page-container" dir="rtl">
       <h2 className="page-title text-end">مدیریت نوع مصرف</h2>
 
-      {/* 🔍 جستجو */}
-      <div className="form-section" style={{ marginBottom: "15px" }}>
+      {/* جستجو */}
+      <div className="form-section mb-3">
         <input
           type="text"
           className="form-input"
@@ -98,14 +107,15 @@ function ConsumptionType() {
         />
       </div>
 
-      {/* فرم افزودن نوع مصرف */}
-      <div className="form-section">
+      {/* فرم افزودن */}
+      <div className="form-section mb-3 d-flex gap-2">
         <input
           type="number"
           className="form-input"
           placeholder="شماره نوع مصرف"
           value={newConsumptionTypeNumber}
           onChange={(e) => setNewConsumptionTypeNumber(e.target.value)}
+          style={{ width: "80px" }}
         />
         <input
           type="text"
@@ -133,49 +143,25 @@ function ConsumptionType() {
             {filteredTypes.map((t) => (
               <tr key={t.id}>
                 <td>{t.number}</td>
-                <td>
-                  {editingType?.id === t.id ? (
-                    <input
-                      type="text"
-                      className="edit-input"
-                      value={editingType.title || ""}
-                      onChange={(e) =>
-                        setEditingType({ ...editingType, title: e.target.value })
-                      }
-                    />
-                  ) : (
-                    t.title
-                  )}
-                </td>
-                <td>
-                  {editingType?.id === t.id ? (
-                    <>
-                      <button className="btn btn-save" onClick={handleUpdate}>
-                        ذخیره
-                      </button>
-                      <button
-                        className="btn btn-cancel"
-                        onClick={() => setEditingType(null)}
-                      >
-                        انصراف
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        className="btn btn-edit"
-                        onClick={() => setEditingType(t)}
-                      >
-                        ویرایش
-                      </button>
-                      <button
-                        className="btn btn-delete"
-                        onClick={() => handleDelete(t.id)}
-                      >
-                        حذف
-                      </button>
-                    </>
-                  )}
+                <td>{t.title}</td>
+                <td className="text-center">
+                  <button
+                    className="btn btn-edit"
+                    onClick={() => {
+                      setEditingType(t);
+                      const modalEl = document.getElementById("editTypeModal");
+                      const modalInstance = new bootstrap.Modal(modalEl);
+                      modalInstance.show();
+                    }}
+                  >
+                    ویرایش
+                  </button>
+                  <button
+                    className="btn btn-delete"
+                    onClick={() => handleDelete(t.id)}
+                  >
+                    حذف
+                  </button>
                 </td>
               </tr>
             ))}
@@ -188,6 +174,61 @@ function ConsumptionType() {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* مودال ویرایش */}
+      <div
+        className="modal fade"
+        id="editTypeModal"
+        tabIndex="-1"
+        aria-labelledby="editTypeModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog">
+          <div className="modal-content" dir="rtl">
+            <div className="modal-header">
+              <button
+                type="button"
+                className="btn-close"
+                onClick={closeModal}
+              ></button>
+              <h5 className="modal-title w-100 text-center" id="editTypeModalLabel">
+                ویرایش نوع مصرف
+              </h5>
+            </div>
+            <div className="modal-body">
+              {editingType && (
+                <div className="mb-3">
+                  <label className="form-label">نوع مصرف</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={editingType.title}
+                    onChange={(e) =>
+                      setEditingType({ ...editingType, title: e.target.value })
+                    }
+                  />
+                </div>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={closeModal}
+              >
+                بستن
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleUpdate}
+              >
+                ذخیره تغییرات
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

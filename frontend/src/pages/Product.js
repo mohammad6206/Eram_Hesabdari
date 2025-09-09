@@ -1,22 +1,15 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance"; // جایگزین axios
 import "../styles/Product.css";
 import DatePicker from "react-multi-date-picker";
 import DateObject from "react-date-object";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // اطمینان از لود JS بوت‌استرپ
+
 
 const API_URL = process.env.REACT_APP_API_URL;
 
-// 📌 تابع کمکی برای نمایش تاریخ
-const formatDateTime = (dateStr) => {
-  if (!dateStr) return "-";
-  return new DateObject({
-    date: dateStr,
-    calendar: persian,
-    locale: persian_fa,
-  }).format("YYYY-MM-DD  HH:mm");
-};
 
 export default function Product() {
   const [products, setProducts] = useState([]);
@@ -47,7 +40,7 @@ export default function Product() {
 
   const fetchNextProductNumber = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/next-number/Product/`);
+      const res = await axiosInstance.get(`${API_URL}/api/next-number/Product/`);
       const nextNum = res.data.next_number || res.data;
       setNewProduct((prev) => ({ ...prev, number: nextNum.toString() }));
     } catch (err) {
@@ -57,7 +50,7 @@ export default function Product() {
 
   const fetchProducts = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/products/`);
+      const res = await axiosInstance.get(`${API_URL}/api/products/`);
       setProducts(res.data || []);
     } catch (err) {
       console.error(err);
@@ -66,7 +59,7 @@ export default function Product() {
 
   const fetchGroups = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/product-groups/`);
+      const res = await axiosInstance.get(`${API_URL}/api/product-groups/`);
       setGroups(res.data || []);
     } catch (err) {
       console.error(err);
@@ -75,7 +68,7 @@ export default function Product() {
 
   const fetchDevices = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/devices/`);
+      const res = await axiosInstance.get(`${API_URL}/api/devices/`);
       setDevices(res.data || []);
     } catch (err) {
       console.error(err);
@@ -103,12 +96,12 @@ export default function Product() {
       device: newProduct.device ? Number(newProduct.device) : null,
       group: newProduct.group ? Number(newProduct.group) : null,
       created_at: newProduct.created_at
-        ? newProduct.created_at.format("YYYY-MM-DD HH:mm")
+        ? new Date(newProduct.created_at.toDate())  // تبدیل به میلادی
         : null,
     };
 
     try {
-      await axios.post(`${API_URL}/api/products/`, payload);
+      await axiosInstance.post(`${API_URL}/api/products/`, payload);
       setNewProduct({
         number: "",
         device: "",
@@ -125,6 +118,18 @@ export default function Product() {
     }
   };
 
+  // هنگام گرفتن محصول برای ویرایش
+  const handleEdit = (product) => {
+    const jalaliDate = product.created_at
+      ? new DateObject({
+        date: new Date(product.created_at), // مهم: استفاده از new Date() برای حفظ ساعت
+        calendar: persian,
+        locale: persian_fa,
+      })
+      : null;
+    setEditingProduct({ ...product, created_at: jalaliDate });
+  };
+
   const handleUpdate = async () => {
     const errs = validate(editingProduct);
     setErrors(errs);
@@ -135,18 +140,20 @@ export default function Product() {
       device: editingProduct.device ? Number(editingProduct.device) : null,
       group: editingProduct.group ? Number(editingProduct.group) : null,
       created_at: editingProduct.created_at
-        ? editingProduct.created_at.format("YYYY-MM-DD HH:mm")
+        ? new Date(editingProduct.created_at.toDate()) // تبدیل به میلادی
         : null,
-      updated_at: new DateObject({ date: new Date(), calendar: persian, locale: persian_fa }).format(
-        "YYYY-MM-DD HH:mm"
-      ),
+      updated_at: new Date(),
     };
 
     try {
-      await axios.put(`${API_URL}/api/products/${editingProduct.id}/`, payload);
+      await axiosInstance.put(`${API_URL}/api/products/${editingProduct.id}/`, payload);
       setEditingProduct(null);
       setErrors({});
       fetchProducts();
+      // بستن مودال Bootstrap
+      const modalEl = document.getElementById("editProductModal");
+      const modal = window.bootstrap.Modal.getInstance(modalEl);
+      modal.hide();
     } catch (err) {
       console.error("Update Error:", err.response?.data || err.message);
     }
@@ -155,7 +162,7 @@ export default function Product() {
   const handleDelete = async (id) => {
     if (!window.confirm("آیا مطمئن هستید می‌خواهید حذف کنید؟")) return;
     try {
-      await axios.delete(`${API_URL}/api/products/${id}/`);
+      await axiosInstance.delete(`${API_URL}/api/products/${id}/`);
       fetchProducts();
     } catch (err) {
       console.error(err);
@@ -248,7 +255,7 @@ export default function Product() {
         />
       </div>
 
-      {/* فرم ورود/ویرایش */}
+      {/* فرم ورود */}
       <div
         style={{
           border: "1px solid #ccc",
@@ -277,11 +284,9 @@ export default function Product() {
                         ? "تاریخ ایجاد"
                         : "کد اختصاصی";
 
-            let value = editingProduct ? editingProduct[field] : newProduct[field];
+            let value = newProduct[field];
             const onChange = (val) => {
-              if (editingProduct)
-                setEditingProduct({ ...editingProduct, [field]: val });
-              else setNewProduct({ ...newProduct, [field]: val });
+              setNewProduct({ ...newProduct, [field]: val });
             };
 
             const baseStyle = {
@@ -344,9 +349,8 @@ export default function Product() {
                     onChange={(date) => onChange(date || "")}
                     inputClass="form-input"
                     placeholder="تاریخ ایجاد"
-                    format="YYYY-MM-DD  HH:mm"
-                    timePicker   // 👈 اینو اضافه کن
-
+                    format="HH:mm  YYYY-MM-DD"
+                    timePicker
                   />
                   <small style={{ minHeight: "18px", color: "red" }}>
                     {errors.created_at}
@@ -370,19 +374,10 @@ export default function Product() {
             );
           }
         )}
-
-        <div style={{ alignSelf: "flex-end" }}>
-          {editingProduct ? (
-            <button className="btn-fullheight" onClick={handleUpdate}>
-              ذخیره تغییرات
-            </button>
-          ) : (
-            <div className="input-row">
-              <button className="btn-fullheight" onClick={handleCreate}>
-                افزودن کالا
-              </button>
-            </div>
-          )}
+        <div className="input-row">
+          <button className="btn-fullheight" onClick={handleCreate}>
+            افزودن کالا
+          </button>
         </div>
       </div>
 
@@ -409,21 +404,42 @@ export default function Product() {
                 <td>{p.name}</td>
                 <td>{p.product_code || "-"}</td>
                 <td>{nameOf(p.group, groups)}</td>
-                <td>{formatDateTime(p.created_at)}</td>
-                <td>{formatDateTime(p.updated_at)}</td>
                 <td>
-                  <button
-                    className="btn btn-edit"
-                    onClick={() => setEditingProduct(p)}
-                  >
-                    ویرایش
-                  </button>
-                  <button
-                    className="btn btn-delete"
-                    onClick={() => handleDelete(p.id)}
-                  >
-                    حذف
-                  </button>
+                  {p.created_at
+                    ? new DateObject({
+                      date: new Date(p.created_at), // تاریخ میلادی از API
+                      calendar: persian,
+                      locale: persian_fa
+                    }).format("HH:mm  YYYY-MM-DD")
+                    : "-"}
+                </td>
+                <td>
+                  {p.updated_at
+                    ? new DateObject({
+                      date: new Date(p.updated_at),
+                      calendar: persian,
+                      locale: persian_fa
+                    }).format("HH:mm  YYYY-MM-DD")
+                    : "-"}
+                </td>
+
+                <td className="text-center align-middle">
+                  <div className="d-flex flex-column justify-content-center align-items-center gap-2">
+                    <button
+                      className="btn btn-warning btn-sm w-100"
+                      data-bs-toggle="modal"
+                      data-bs-target="#editProductModal"
+                      onClick={() => handleEdit(p)}
+                    >
+                      ویرایش
+                    </button>
+                    <button
+                      className="btn btn-danger btn-sm w-100"
+                      onClick={() => handleDelete(p.id)}
+                    >
+                      حذف
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -437,7 +453,151 @@ export default function Product() {
           </tbody>
         </table>
       </div>
+
+      {/* مودال ویرایش */}
+      <div
+        className="modal fade"
+        id="editProductModal"
+        tabIndex="-1"
+        aria-labelledby="editProductModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog modal-lg">
+          <div className="modal-content" dir="rtl">
+            <div className="modal-header">
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+              <h5 className="modal-title text-center w-100" id="editProductModalLabel">
+                ویرایش کالا
+              </h5>
+            </div>
+            <div className="modal-body">
+              {editingProduct && (
+                <div className="row g-3">
+
+                  {/* دستگاه */}
+                  <div className="col-md-4">
+                    <label className="form-label">دستگاه</label>
+                    <select
+                      className="form-select"
+                      value={editingProduct.device || ""}
+                      onChange={(e) =>
+                        setEditingProduct({ ...editingProduct, device: e.target.value })
+                      }
+                    >
+                      <option value="">انتخاب دستگاه</option>
+                      {devices.map((d) => (
+                        <option key={d.id} value={d.id}>
+                          {d.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* نام کالا */}
+                  <div className="col-md-4">
+                    <label className="form-label">نام کالا</label>
+                    <input
+                      className="form-control"
+                      value={editingProduct.name}
+                      onChange={(e) =>
+                        setEditingProduct({ ...editingProduct, name: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  {/* کد اختصاصی */}
+                  <div className="col-md-4">
+                    <label className="form-label">کد اختصاصی</label>
+                    <input
+                      className="form-control"
+                      value={editingProduct.product_code || ""}
+                      onChange={(e) =>
+                        setEditingProduct({ ...editingProduct, product_code: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  {/* گروه کالا */}
+                  <div className="col-md-4">
+                    <label className="form-label">گروه کالا</label>
+                    <select
+                      className="form-select"
+                      value={editingProduct.group || ""}
+                      onChange={(e) =>
+                        setEditingProduct({ ...editingProduct, group: e.target.value })
+                      }
+                    >
+                      <option value="">انتخاب گروه</option>
+                      {groups.map((g) => (
+                        <option key={g.id} value={g.id}>
+                          {g.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* تاریخ ایجاد */}
+                  <div className="col-md-4">
+                    <label className="form-label">تاریخ ایجاد</label>
+                    <DatePicker
+                      calendar={persian}
+                      locale={persian_fa}
+                      value={editingProduct.created_at}
+                      onChange={(date) =>
+                        setEditingProduct({ ...editingProduct, created_at: date })
+                      }
+                      format="HH:mm  YYYY-MM-DD"
+                      timePicker
+                      inputClass="form-control"
+                    />
+                  </div>
+
+                  {/* آخرین ویرایش */}
+                  <div className="col-md-4">
+                    <label className="form-label">آخرین ویرایش</label>
+                    <input
+                      className="form-control"
+                      value={
+                        editingProduct.updated_at
+                          ? new DateObject({
+                            date: new Date(editingProduct.updated_at),
+                            calendar: persian,
+                            locale: persian_fa,
+                          }).format("HH:mm  YYYY-MM-DD")
+                          : "-"
+                      }
+                      disabled
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                بستن
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleUpdate}
+              >
+                ذخیره تغییرات
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
     </div>
   );
 }
-

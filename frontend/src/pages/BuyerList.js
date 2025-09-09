@@ -3,23 +3,28 @@ import { Link } from "react-router-dom";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
+import axiosInstance from "../api/axiosInstance";
 
-const API_URL = process.env.REACT_APP_API_URL;
 
-// تابع فرمت نمایش تاریخ/ساعت شمسی
+
+// تابع فرمت نمایش ساعت و تاریخ شمسی
 const formatDateTime = (dateString) => {
   if (!dateString) return "";
   const d = new Date(dateString);
+
+  const faTime = d.toLocaleTimeString("fa-IR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
   const faDate = d.toLocaleDateString("fa-IR", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
   });
-  const faTime = d.toLocaleTimeString("fa-IR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  return `${faDate} ${faTime}`;
+
+  // ساعت قبل از تاریخ
+  return `${faTime} ${faDate}`;
 };
 
 export default function BuyerList() {
@@ -34,16 +39,20 @@ export default function BuyerList() {
   const [dateFilter, setDateFilter] = useState({ from: null, to: null });
   const [dateField, setDateField] = useState("created_at"); // created_at یا updated_at
 
-  // دریافت لیست خریداران
-  const fetchBuyers = () => {
-    fetch(`${API_URL}/api/buyers/`)
-      .then((res) => res.json())
-      .then((data) => {
-        setBuyerList(data);
-        setFilteredList(data);
-      })
-      .catch((err) => console.error("خطا در دریافت خریداران:", err));
+  const fetchBuyers = async () => {
+    try {
+      const res = await axiosInstance.get("buyers/"); // توجه: baseURL قبلاً تنظیم شده
+      const buyersArray = Array.isArray(res.data) ? res.data : res.data.results || [];
+      setBuyerList(buyersArray);
+      setFilteredList(buyersArray);
+    } catch (err) {
+      console.error("خطا در دریافت خریداران:", err);
+      setBuyerList([]);
+      setFilteredList([]);
+    }
   };
+
+
 
   useEffect(() => {
     fetchBuyers();
@@ -86,15 +95,18 @@ export default function BuyerList() {
     setShowModal(true);
   };
 
-  // حذف خریدار
-  const handleDelete = (id) => {
+  // حذف خریدار با axiosInstance و توکن
+  const handleDelete = async (id) => {
     if (!window.confirm("آیا مطمئن هستید که می‌خواهید این خریدار را حذف کنید؟")) return;
-    fetch(`${API_URL}/api/buyers/${id}/`, { method: "DELETE" })
-      .then((res) => {
-        if (!res.ok) throw new Error("خطا در حذف خریدار");
-        fetchBuyers();
-      })
-      .catch((err) => console.error("خطا:", err));
+
+    try {
+      await axiosInstance.delete(`buyers/${id}/`);
+      // بعد از حذف موفق، لیست را بروزرسانی کن
+      fetchBuyers();
+    } catch (err) {
+      console.error("خطا در حذف خریدار:", err.response?.data || err);
+      alert("حذف خریدار با مشکل مواجه شد");
+    }
   };
 
   return (
@@ -206,14 +218,14 @@ export default function BuyerList() {
           <div className="modal-dialog w-[600px] m-auto" role="document">
             <div className="modal-content p-3" dir="rtl">
               <div className="modal-header">
-                <h5 className="modal-title text-center w-100">
-                  ویرایش {selectedBuyer.name}
-                </h5>
                 <button
                   type="button"
                   className="btn-close"
                   onClick={() => setShowModal(false)}
                 ></button>
+                <h5 className="modal-title text-center w-100">
+                  ویرایش {selectedBuyer.name}
+                </h5>
               </div>
 
               <div className="modal-body">
@@ -261,7 +273,7 @@ export default function BuyerList() {
                         updated_at: new Date().toISOString(),
                       }))
                     }
-                    format="YYYY/MM/DD     HH:mm"
+                    format="HH:mm YYYY/MM/DD"
                     render={(value, openCalendar) => (
                       <input
                         className="form-control"

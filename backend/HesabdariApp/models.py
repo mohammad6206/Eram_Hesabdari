@@ -243,19 +243,22 @@ class BuyInvoice(models.Model):
     destination = models.ForeignKey('Warehouse', on_delete=models.SET_NULL, null=True)
     invoice_file = models.FileField(upload_to='buy_invoice/', null=True, blank=True)
     total_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+
+    created_at = models.DateTimeField("تاریخ ایجاد", blank=True, null=True)
+    updated_at = models.DateTimeField("تاریخ ویرایش", blank=True, null=True)
 
     def __str__(self):
         return f"Invoice #{self.invoice_number} - {self.seller.name}"
-
 
 class BuyInvoiceItem(models.Model):
     buy_invoice = models.ForeignKey(BuyInvoice, on_delete=models.CASCADE, related_name='items')
     row_number = models.PositiveIntegerField()
     product = models.ForeignKey('Product', on_delete=models.CASCADE)
     product_code = models.CharField(max_length=100, blank=True, null=True)
+    
+    unit = models.ForeignKey('Unit', on_delete=models.SET_NULL, null=True, blank=True)  # اضافه شد
     quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    
     unit_price = models.DecimalField(max_digits=15, decimal_places=2)
     total_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0)
     tax_rate = models.DecimalField(max_digits=5, decimal_places=2)
@@ -264,6 +267,7 @@ class BuyInvoiceItem(models.Model):
     description = models.TextField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
+        # محاسبه مقادیر بر اساس تعداد و مبلغ واحد
         self.total_amount = self.quantity * self.unit_price
         self.tax_amount = self.total_amount * (self.tax_rate / 100)
         self.final_amount = self.total_amount + self.tax_amount
@@ -278,7 +282,7 @@ class BuyInvoiceItem(models.Model):
         ordering = ['row_number']
 
     def __str__(self):
-        return f"{self.product.name} - Row {self.row_number}"
+        return f"{self.product.name} - {self.unit.title if self.unit else ''} - Row {self.row_number}"
 
 
 # سگنال برای بروزرسانی total_amount فاکتور بعد از ثبت یا حذف آیتم
@@ -291,7 +295,6 @@ def update_invoice_total(sender, instance, **kwargs):
 
 
 
-
 class SellInvoice(models.Model):
     invoice_number = models.CharField(max_length=50, unique=True)
     buyer = models.ForeignKey('Buyer', on_delete=models.CASCADE)
@@ -299,18 +302,20 @@ class SellInvoice(models.Model):
     destination = models.ForeignKey('Warehouse', on_delete=models.SET_NULL, null=True)
     invoice_file = models.FileField(upload_to='sell_invoice/', null=True, blank=True)
     total_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
+    created_at = models.DateTimeField("تاریخ ایجاد", blank=True, null=True)
+    updated_at = models.DateTimeField("تاریخ ویرایش", blank=True, null=True)
     def __str__(self):
         return f"Invoice #{self.invoice_number} - {self.seller.name}"
+
 
 class SellInvoiceItem(models.Model):
     sell_invoice = models.ForeignKey(SellInvoice, on_delete=models.CASCADE, related_name='items')
     row_number = models.PositiveIntegerField()
     product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    unit = models.ForeignKey('Unit', on_delete=models.CASCADE, null=True, blank=True)  # واحد کالا
     product_code = models.CharField(max_length=100, blank=True, null=True)
-    quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2)  # تعداد
     unit_price = models.DecimalField(max_digits=15, decimal_places=2)
     total_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0)
     tax_rate = models.DecimalField(max_digits=5, decimal_places=2)
@@ -318,29 +323,29 @@ class SellInvoiceItem(models.Model):
     final_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0)
     description = models.TextField(blank=True, null=True)
 
-    class Meta:
-        ordering = ['row_number']
-
     def save(self, *args, **kwargs):
-        # محاسبه خودکار مبالغ
+        # محاسبه مقادیر
         self.total_amount = self.quantity * self.unit_price
         self.tax_amount = self.total_amount * (self.tax_rate / 100)
         self.final_amount = self.total_amount + self.tax_amount
 
-        # تعیین ردیف خودکار
+        # تنظیم ردیف اگر وجود نداشته باشه
         if not self.row_number:
             last_row = SellInvoiceItem.objects.filter(sell_invoice=self.sell_invoice).order_by('-row_number').first()
             self.row_number = (last_row.row_number + 1) if last_row else 1
 
         super().save(*args, **kwargs)
 
+    class Meta:
+        ordering = ['row_number']
+
     def __str__(self):
         return f"{self.product.name} - Row {self.row_number}"
 
 
-# سیگنال برای بروزرسانی total_amount فاکتور بعد از ثبت یا حذف آیتم
+# سگنال برای بروزرسانی total_amount فاکتور بعد از ثبت یا حذف آیتم
 @receiver([post_save, post_delete], sender=SellInvoiceItem)
-def update_invoice_total(sender, instance, **kwargs):
+def update_sell_invoice_total(sender, instance, **kwargs):
     invoice = instance.sell_invoice
     invoice.total_amount = invoice.items.aggregate(total=Sum('final_amount'))['total'] or 0
     invoice.save()

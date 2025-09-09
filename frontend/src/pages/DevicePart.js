@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance"; // جایگزین axios
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function DevicePart() {
@@ -18,7 +18,7 @@ function DevicePart() {
 
   const fetchDevices = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/devices/`);
+      const res = await axiosInstance.get(`${API_URL}/api/devices/`);
       setDevices(res.data || []);
     } catch (err) {
       console.error(err);
@@ -27,7 +27,7 @@ function DevicePart() {
 
   const fetchProducts = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/products/`);
+      const res = await axiosInstance.get(`${API_URL}/api/products/`);
       setProducts(res.data || []);
     } catch (err) {
       console.error(err);
@@ -36,7 +36,7 @@ function DevicePart() {
 
   const fetchGroups = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/product-groups/`);
+      const res = await axiosInstance.get(`${API_URL}/api/product-groups/`);
       setGroups(res.data || []);
     } catch (err) {
       console.error(err);

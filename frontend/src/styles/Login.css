@@ -1,0 +1,39 @@
+/* بک‌گراند اکشن */
+.login-bg {
+    background: linear-gradient(-45deg, #ff416c, #ff4b2b, #1f4037, #99f2c8);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    position: relative;
+}
+
+/* انیمیشن گرادیان */
+@keyframes gradientBG {
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
+}
+
+/* پنل ورود */
+.login-panel {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(15px);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    width: 100%;
+    max-width: 400px;
+}
+
+/* دکمه گرادیان */
+.btn-gradient {
+    background: linear-gradient(45deg, #ff416c, #ff4b2b);
+    color: #fff;
+    font-weight: bold;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+    background: linear-gradient(45deg, #1f4037, #99f2c8);
+    transform: scale(1.05);
+}

@@ -61,20 +61,47 @@ class BuyerSerializer(serializers.ModelSerializer):
 
 
 
+class BuyInvoiceItemSerializer(serializers.ModelSerializer):
+    unit = serializers.PrimaryKeyRelatedField(
+        queryset=models.Unit.objects.all(),  # مدل Unit شما
+        required=False,
+        allow_null=True
+    )
+    unit_title = serializers.CharField(source="unit.title", read_only=True)  # اضافه شد
+    product_name = serializers.CharField(source="product.name", read_only=True)  # 👈 اضافه شد
+
+    class Meta:
+        model = models.BuyInvoiceItem
+        fields = [
+            "id",
+            "buy_invoice",
+            "row_number",
+            "product",
+            "product_code",
+            "unit",           # اضافه شده
+            "unit_title",
+            "product_name",
+            "quantity",
+            "unit_price",
+            "total_amount",
+            "tax_rate",
+            "tax_amount",
+            "final_amount",
+            "description",
+        ]
+        read_only_fields = ["row_number", "total_amount", "tax_amount", "final_amount"]
+
 
 class BuyInvoiceSerializer(serializers.ModelSerializer):
-
-    # برای نمایش در GET
     seller_name = serializers.CharField(source="seller.name", read_only=True)
     buyer_name = serializers.CharField(source="buyer.full_name", read_only=True)
     destination_name = serializers.CharField(source="destination.name", read_only=True)
+    
+    items = BuyInvoiceItemSerializer(many=True, read_only=True)  # اضافه کردن آیتم‌ها
 
-   
-    # برای POST
     seller = serializers.PrimaryKeyRelatedField(queryset=models.Seller.objects.all())
     buyer = serializers.PrimaryKeyRelatedField(queryset=models.Personnel.objects.all())
     destination = serializers.PrimaryKeyRelatedField(queryset=models.Warehouse.objects.all(), required=False, allow_null=True)
-
 
     class Meta:
         model = models.BuyInvoice
@@ -91,22 +118,39 @@ class BuyInvoiceSerializer(serializers.ModelSerializer):
             "total_amount",
             "created_at",
             "updated_at",
+            "items",  # اضافه شده
         ]
-        read_only_fields = ["total_amount", "created_at", "updated_at"]
+        read_only_fields = ["total_amount"]
 
 
 
 
-class BuyInvoiceItemSerializer(serializers.ModelSerializer):
+
+
+
+
+
+class SellInvoiceItemSerializer(serializers.ModelSerializer):
+
+    unit = serializers.PrimaryKeyRelatedField(
+        queryset=models.Unit.objects.all(),  # مدل Unit شما
+        required=False,
+        allow_null=True
+    )
+    unit_title = serializers.CharField(source="unit.title", read_only=True)  # اضافه شد
+    product_name = serializers.CharField(source="product.name", read_only=True)  # 👈 اضافه شد
 
     class Meta:
-        model = models.BuyInvoiceItem
+        model = models.SellInvoiceItem
         fields = [
             "id",
-            "buy_invoice",
+            "sell_invoice",
             "row_number",
             "product",
             "product_code",
+            "unit",
+            "unit_title",
+            "product_name",           # اضافه شده
             "quantity",
             "unit_price",
             "total_amount",
@@ -120,16 +164,13 @@ class BuyInvoiceItemSerializer(serializers.ModelSerializer):
 
 
 
-
-
-
 class SellInvoiceSerializer(serializers.ModelSerializer):
-    # برای نمایش در GET
     seller_name = serializers.CharField(source="seller.name", read_only=True)
     buyer_name = serializers.CharField(source="buyer.name", read_only=True)
     destination_name = serializers.CharField(source="destination.name", read_only=True)
+    
+    items = SellInvoiceItemSerializer(many=True, read_only=True)  # اضافه کردن آیتم‌ها
 
-    # برای POST
     seller = serializers.PrimaryKeyRelatedField(queryset=models.Seller.objects.all())
     buyer = serializers.PrimaryKeyRelatedField(queryset=models.Buyer.objects.all())
     destination = serializers.PrimaryKeyRelatedField(queryset=models.Warehouse.objects.all(), required=False, allow_null=True)
@@ -149,31 +190,11 @@ class SellInvoiceSerializer(serializers.ModelSerializer):
             "total_amount",
             "created_at",
             "updated_at",
+            "items",
         ]
-        read_only_fields = ["total_amount", "created_at", "updated_at"]
+        read_only_fields = ["total_amount"]   
 
 
-
-
-class SellInvoiceItemSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = models.SellInvoiceItem
-        fields = [
-            "id",
-            "sell_invoice",
-            "row_number",
-            "product",
-            "product_code",
-            "quantity",
-            "unit_price",
-            "total_amount",
-            "tax_rate",
-            "tax_amount",
-            "final_amount",
-            "description",
-        ]
-        read_only_fields = ["row_number", "total_amount", "tax_amount", "final_amount"]
 
 
 

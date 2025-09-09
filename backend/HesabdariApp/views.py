@@ -1,6 +1,6 @@
 
 # views.py
-from rest_framework import viewsets,status
+from rest_framework import viewsets
 from .models import( 
     Warehouse, Product, ProductGroup, Unit,
     ConsumptionType,Device,Personnel,generate_unique_personnel_code,
@@ -18,31 +18,34 @@ from .serializer import (
 from rest_framework.decorators import api_view,action
 from django.apps import apps
 from rest_framework.response import Response
-from rest_framework.parsers import MultiPartParser, FormParser
-from django.core.files.storage import default_storage
-import os
+from rest_framework.permissions import IsAuthenticated
 
 
 
 class WarehouseViewSet(viewsets.ModelViewSet):
     queryset = Warehouse.objects.all()
     serializer_class = WarehouseSerializer
+    permission_classes = [IsAuthenticated]
 
 class ProductGroupViewSet(viewsets.ModelViewSet):
     queryset = ProductGroup.objects.all()
     serializer_class = ProductGroupSerializer
+    permission_classes = [IsAuthenticated]
 
 class UnitViewSet(viewsets.ModelViewSet):
     queryset = Unit.objects.all()
     serializer_class = UnitSerializer
+    permission_classes = [IsAuthenticated]
 
 class ConsumptionTypeViewSet(viewsets.ModelViewSet):
     queryset = ConsumptionType.objects.all()
     serializer_class = ConsumptionTypeSerializer
+    permission_classes = [IsAuthenticated]
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = [IsAuthenticated]
 
 
 
@@ -51,6 +54,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 class DeviceViewSet(viewsets.ModelViewSet):
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer
+    permission_classes = [IsAuthenticated]
 
 
 
@@ -80,6 +84,7 @@ def next_number(request, model_name):
 class DeviceViewSet(viewsets.ModelViewSet):
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer
+    permission_classes = [IsAuthenticated]
 
     @action(detail=True, methods=["get"])
     def products(self, request, pk=None):
@@ -109,12 +114,15 @@ def generate_personnel_code(request):
 class SellerViewSet(viewsets.ModelViewSet):
     queryset = Seller.objects.all()
     serializer_class = SellerSerializer
+    permission_classes = [IsAuthenticated]
 
 
 
 class BuyerViewSet(viewsets.ModelViewSet):
     queryset = Buyer.objects.all()
     serializer_class = BuyerSerializer
+    permission_classes = [IsAuthenticated]
+
 
 
 
@@ -123,21 +131,25 @@ class BuyerViewSet(viewsets.ModelViewSet):
 class BuyInvoiceViewSet(viewsets.ModelViewSet):
     queryset = BuyInvoice.objects.all()
     serializer_class = BuyInvoiceSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class BuyInvoiceItemViewSet(viewsets.ModelViewSet):
     queryset = BuyInvoiceItem.objects.all()
     serializer_class = BuyInvoiceItemSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class SellInvoiceViewSet(viewsets.ModelViewSet):
     queryset = SellInvoice.objects.all()
     serializer_class = SellInvoiceSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class SellInvoiceItemViewSet(viewsets.ModelViewSet):
     queryset = SellInvoiceItem.objects.all()
     serializer_class = SellInvoiceItemSerializer
+    permission_classes = [IsAuthenticated]
 
 
 
@@ -147,8 +159,10 @@ class SellInvoiceItemViewSet(viewsets.ModelViewSet):
 class PersonnelViewSet(viewsets.ModelViewSet):
     queryset = Personnel.objects.all()
     serializer_class = PersonnelSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class PersonnelDocumentViewSet(viewsets.ModelViewSet):
     queryset = PersonnelDocument.objects.all()
     serializer_class = PersonnelDocumentSerializer
+    permission_classes = [IsAuthenticated]

@@ -1,10 +1,10 @@
-// src/App.js
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
 // Layout
 import Layout from "./components/Layout";
-
+import Login from "./pages/Login";
+import PrivateRoute from "./routes/PrivateRoute";
 // صفحات اصلی
 import Dashboard from "./pages/Dashboard";
 import BasicInfo from "./pages/BasicInfo";
@@ -20,18 +20,25 @@ import DevicePart from "./pages/DevicePart";
 import BuyInvoice from "./pages/BuyInvoice";
 import SellInvoice from "./pages/SellInvoice";
 import Personnel from "./pages/Personnel";
-import PersonnelList from "./pages/PersonnelList"
+import PersonnelList from "./pages/PersonnelList";
 import Seller from "./pages/Seller";
 import Buyer from "./pages/Buyer";
 import SellerList from "./pages/SellerList";
 import BuyerList from "./pages/BuyerList";
 import BuyInvoiceList from "./pages/BuyInvoiceList";
 import SellInvoiceList from "./pages/SellInvoiceList";
+
 function App() {
   return (
     <Routes>
-      {/* همه صفحات داخل Layout */}
-      <Route path="/" element={<Layout />}>
+      {/* صفحه لاگین */}
+      <Route path="/login" element={<Login />} />
+
+      <Route path="/" element={
+        <PrivateRoute>
+          <Layout />
+        </PrivateRoute>
+      }>
         <Route index element={<Dashboard />} />
         <Route path="dashboard" element={<Dashboard />} />
 
@@ -55,6 +62,7 @@ function App() {
         <Route path="buyerlist" element={<BuyerList />} />
         <Route path="BuyInvoiceList" element={<BuyInvoiceList />} />
         <Route path="SellInvoiceList" element={<SellInvoiceList />} />
+
         {/* صفحه 404 */}
         <Route path="*" element={<NotFound />} />
       </Route>
