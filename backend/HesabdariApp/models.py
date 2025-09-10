@@ -349,3 +349,71 @@ def update_sell_invoice_total(sender, instance, **kwargs):
     invoice = instance.sell_invoice
     invoice.total_amount = invoice.items.aggregate(total=Sum('final_amount'))['total'] or 0
     invoice.save()
+
+
+
+
+
+
+
+
+
+class InventoryItem(models.Model):
+    buy_invoice_item = models.ForeignKey(
+        BuyInvoiceItem, on_delete=models.CASCADE, related_name="inventory_items"
+    )
+    product_name = models.CharField("نام کالا", max_length=200)
+    product_code = models.CharField("کد اختصاصی", max_length=100)
+    invoice_number = models.CharField("شماره فاکتور", max_length=50)
+    serial_number = models.CharField("سریال کالا", max_length=150, unique=True)
+    warehouse = models.ForeignKey("Warehouse", verbose_name="انبار مقصد", on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = "کالای ورودی به انبار"
+        verbose_name_plural = "کالاهای ورودی به انبار"
+        indexes = [
+            models.Index(fields=["product_code", "invoice_number"]),
+            models.Index(fields=["serial_number"]),
+        ]
+
+    def __str__(self):
+        return f"{self.product_name} | {self.serial_number} | {self.warehouse.name}"
+
+
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+# سگنال برای ایجاد آیتم‌های انبار بعد از ثبت BuyInvoiceItem
+@receiver(post_save, sender=BuyInvoiceItem)
+def create_inventory_items(sender, instance, created, **kwargs):
+    if created:
+        # تعداد هر آیتم
+        qty = int(instance.quantity)
+        
+        for i in range(1, qty + 1):
+            # سریال کالا: کد اختصاصی + شماره فاکتور + شماره سریال
+            serial = f"{instance.product_code}{instance.buy_invoice.invoice_number} - {i}"
+            
+            # ایجاد آیتم انبار
+            InventoryItem.objects.create(
+                buy_invoice_item=instance,
+                product_name=instance.product.name,
+                product_code=instance.product_code,
+                invoice_number=instance.buy_invoice.invoice_number,
+                serial_number=serial,
+                warehouse=instance.buy_invoice.destination
+            )
+
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+@receiver(post_save, sender=BuyInvoice)
+def update_inventory_items_warehouse(sender, instance, **kwargs):
+    # بررسی کنیم اگر انبار مقصد تغییر کرده باشد
+    inventory_items = InventoryItem.objects.filter(buy_invoice_item__buy_invoice=instance)
+    for item in inventory_items:
+        if item.warehouse != instance.destination:
+            item.warehouse = instance.destination
+            item.save()

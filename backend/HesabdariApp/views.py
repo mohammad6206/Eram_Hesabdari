@@ -5,7 +5,8 @@ from .models import(
     Warehouse, Product, ProductGroup, Unit,
     ConsumptionType,Device,Personnel,generate_unique_personnel_code,
     Seller,Buyer,BuyInvoice,BuyInvoiceItem,
-    SellInvoice,SellInvoiceItem,PersonnelDocument)
+    SellInvoice,SellInvoiceItem,PersonnelDocument
+    ,InventoryItem)
 from .serializer import (
     WarehouseSerializer, ProductSerializer,
     ProductGroupSerializer, UnitSerializer,
@@ -13,7 +14,7 @@ from .serializer import (
     PersonnelSerializer,BuyerSerializer,SellerSerializer,
     BuyInvoiceSerializer,BuyInvoiceItemSerializer,
     SellInvoiceItemSerializer,SellInvoiceSerializer,
-    PersonnelDocumentSerializer
+    PersonnelDocumentSerializer,InventoryItemSerializer
 )
 from rest_framework.decorators import api_view,action
 from django.apps import apps
@@ -166,3 +167,13 @@ class PersonnelDocumentViewSet(viewsets.ModelViewSet):
     queryset = PersonnelDocument.objects.all()
     serializer_class = PersonnelDocumentSerializer
     permission_classes = [IsAuthenticated]
+
+
+
+class InventoryItemviewSet(viewsets.ModelViewSet):
+    queryset = InventoryItem.objects.all()
+    serializer_class = InventoryItemSerializer
+    permission_classes = [IsAuthenticated]
+
+
+

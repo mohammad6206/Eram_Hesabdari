@@ -201,3 +201,7 @@ class SellInvoiceSerializer(serializers.ModelSerializer):
 
 
 
+class InventoryItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.InventoryItem
+        fields = "__all__"

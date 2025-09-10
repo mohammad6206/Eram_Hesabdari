@@ -27,6 +27,7 @@ import SellerList from "./pages/SellerList";
 import BuyerList from "./pages/BuyerList";
 import BuyInvoiceList from "./pages/BuyInvoiceList";
 import SellInvoiceList from "./pages/SellInvoiceList";
+import InventoryItem from "./pages/InventoryItem";
 
 function App() {
   return (
@@ -62,7 +63,7 @@ function App() {
         <Route path="buyerlist" element={<BuyerList />} />
         <Route path="BuyInvoiceList" element={<BuyInvoiceList />} />
         <Route path="SellInvoiceList" element={<SellInvoiceList />} />
-
+        <Route path="inventory-item" element={<InventoryItem />} />
         {/* صفحه 404 */}
         <Route path="*" element={<NotFound />} />
       </Route>

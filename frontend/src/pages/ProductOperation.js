@@ -13,8 +13,8 @@ function ProductOperation() {
   const buttons = [
     { label: "فاکتور خرید", icon: FaFileInvoice, to: "/BuyInvoiceList" },
     { label: "فاکتور فروش", icon: FaFileInvoiceDollar, to: "/SellInvoiceList" },
-    { label: "ورود کالا به انبار", icon: FaBoxOpen, to: "#" },
-    { label: "خروج کالا از انبار", icon: FaWarehouse, to: "#" },
+    { label: "ورودی انبار", icon: FaBoxOpen, to: "/inventory-item" },
+    { label: "خروجی انبار", icon: FaWarehouse, to: "#" },
   ];
 
   return (

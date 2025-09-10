@@ -237,13 +237,13 @@ export default function BuyInvoice() {
           <h1 style={{ fontSize: "2.2rem", color: "#27ae60", margin: 0 }}>فاکتور خرید</h1>
         </div>
         <div style={{ textAlign: "center", flex: 1, fontSize: "1rem", color: "#34495e" }}>
-          <b>شرکت تجهیزات پزشکی Medescop</b>
+          <b>شرکت تجهیزات پزشکی Tebnology</b>
           <br />
-          <a href="https://www.medescop-co.com" style={{ color: "#2980b9", textDecoration: "none" }}>www.medescop-co.com</a>
+          <a href="https://www.Tebnology-co.com" style={{ color: "#2980b9", textDecoration: "none" }}>www.Tebnology-co.com</a>
         </div>
-        <div style={{ flex: 1, textAlign: "left" }}>
+        <div style={{ flex: 1, textAlign: "left", marginTop: "-20px" }}>
           <img src={Logo} alt="Logo" style={{ width: "90px", height: "90px" }} />
-          <div className="mb-2 text-start">
+          <div className="mt-5 mb-4 text-start">
             <Link to="/BuyInvoiceList" className="btn btn-success">بازگشت</Link>
           </div>
         </div>
