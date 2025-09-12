@@ -14,7 +14,7 @@ function ProductOperation() {
     { label: "فاکتور خرید", icon: FaFileInvoice, to: "/BuyInvoiceList" },
     { label: "فاکتور فروش", icon: FaFileInvoiceDollar, to: "/SellInvoiceList" },
     { label: "ورودی انبار", icon: FaBoxOpen, to: "/inventory-item" },
-    { label: "خروجی انبار", icon: FaWarehouse, to: "#" },
+    { label: "خروجی انبار", icon: FaWarehouse, to: "/inventory-out-item" },
   ];
 
   return (

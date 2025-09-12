@@ -28,13 +28,12 @@ import BuyerList from "./pages/BuyerList";
 import BuyInvoiceList from "./pages/BuyInvoiceList";
 import SellInvoiceList from "./pages/SellInvoiceList";
 import InventoryItem from "./pages/InventoryItem";
+import InventoryOut from "./pages/InventoryOut";
 
 function App() {
   return (
     <Routes>
-      {/* صفحه لاگین */}
       <Route path="/login" element={<Login />} />
-
       <Route path="/" element={
         <PrivateRoute>
           <Layout />
@@ -42,8 +41,6 @@ function App() {
       }>
         <Route index element={<Dashboard />} />
         <Route path="dashboard" element={<Dashboard />} />
-
-        {/* اطلاعات پایه */}
         <Route path="basic-info" element={<BasicInfo />} />
         <Route path="product-operation" element={<ProductOperation />} />
         <Route path="warehouse" element={<Warehouse />} />
@@ -64,7 +61,7 @@ function App() {
         <Route path="BuyInvoiceList" element={<BuyInvoiceList />} />
         <Route path="SellInvoiceList" element={<SellInvoiceList />} />
         <Route path="inventory-item" element={<InventoryItem />} />
-        {/* صفحه 404 */}
+        <Route path="inventory-out-item" element={<InventoryOut />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

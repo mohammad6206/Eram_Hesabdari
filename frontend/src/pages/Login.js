@@ -18,10 +18,11 @@ function Login() {
                 username,
                 password,
             });
-            // ذخیره JWT در sessionStorage به جای localStorage
-            sessionStorage.setItem("accessToken", response.data.access);
-            sessionStorage.setItem("refreshToken", response.data.refresh);
 
+            // ذخیره Access Token طولانی مدت (24 ساعت) در localStorage
+            localStorage.setItem("accessToken", response.data.access);
+
+            // هدایت به داشبورد
             navigate("/dashboard");
         } catch (err) {
             setError(err.response?.data?.detail || "خطا در ورود");

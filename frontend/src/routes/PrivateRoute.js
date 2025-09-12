@@ -1,12 +1,10 @@
 import { Navigate } from "react-router-dom";
 
-export default function PrivateRoute({ children }) {
-    const token = sessionStorage.getItem("accessToken"); // بجای localStorage
+const PrivateRoute = ({ children }) => {
+  const token = localStorage.getItem("accessToken"); // localStorage
 
-    // اگر توکن نیست → هدایت به لاگین
-    if (!token) {
-        return <Navigate to="/login" replace />;
-    }
+  if (!token) return <Navigate to="/login" replace />;
+  return children;
+};
 
-    return children;
-}
+export default PrivateRoute;

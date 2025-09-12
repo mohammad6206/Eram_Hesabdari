@@ -18,9 +18,12 @@ router.register(r'buy-invoice-items', views.BuyInvoiceItemViewSet, basename='buy
 router.register(r'sell-invoices', views.SellInvoiceViewSet, basename='sell-invoice')
 router.register(r'sell-invoice-items', views.SellInvoiceItemViewSet, basename='sell-invoice-item')
 router.register(r'inventory-items',views.InventoryItemviewSet, basename='inventory-item')
+router.register(r'inventory-out-items',views.InventoryOutItemViewSet, basename='inventory-out-item')
 
 urlpatterns = [
     path('personnels/generate_code/', views.generate_personnel_code, name='generate-personnel-code'),
     path('next-number/<str:model_name>/', views.next_number, name='next-number'),
+    path('check-inventory/',views.check_inventory, name='check_inventory'),
+    path('product_units/', views.product_units, name='product_units'),
     path('', include(router.urls)),
 ]

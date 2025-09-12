@@ -6,7 +6,7 @@ from .models import(
     ConsumptionType,Device,Personnel,generate_unique_personnel_code,
     Seller,Buyer,BuyInvoice,BuyInvoiceItem,
     SellInvoice,SellInvoiceItem,PersonnelDocument
-    ,InventoryItem)
+    ,InventoryItem,InventoryOutItem)
 from .serializer import (
     WarehouseSerializer, ProductSerializer,
     ProductGroupSerializer, UnitSerializer,
@@ -14,7 +14,8 @@ from .serializer import (
     PersonnelSerializer,BuyerSerializer,SellerSerializer,
     BuyInvoiceSerializer,BuyInvoiceItemSerializer,
     SellInvoiceItemSerializer,SellInvoiceSerializer,
-    PersonnelDocumentSerializer,InventoryItemSerializer
+    PersonnelDocumentSerializer,InventoryItemSerializer,
+    InventoryOutItemSerializer
 )
 from rest_framework.decorators import api_view,action
 from django.apps import apps
@@ -170,10 +171,81 @@ class PersonnelDocumentViewSet(viewsets.ModelViewSet):
 
 
 
-class InventoryItemviewSet(viewsets.ModelViewSet):
-    queryset = InventoryItem.objects.all()
+
+class InventoryItemviewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = InventoryItem.objects.all().order_by("id")
     serializer_class = InventoryItemSerializer
     permission_classes = [IsAuthenticated]
 
+class InventoryOutItemViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = InventoryOutItem.objects.all().order_by("id")
+    serializer_class = InventoryOutItemSerializer
+    permission_classes = [IsAuthenticated]
+
+
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import InventoryItem, Warehouse, Product  # Product هم ایمپورت کن
+
+@api_view(['GET'])
+def check_inventory(request):
+    product_id = request.GET.get("product_id")
+    warehouse_id = request.GET.get("warehouse_id")
+
+    if not product_id or not warehouse_id:
+        return Response({"error": "پارامترها ناقص هستند"}, status=400)
+
+    try:
+        warehouse = Warehouse.objects.get(id=int(warehouse_id))
+    except Warehouse.DoesNotExist:
+        return Response({"error": f"انبار با id={warehouse_id} یافت نشد"}, status=404)
+
+    try:
+        product = Product.objects.get(id=int(product_id))
+    except Product.DoesNotExist:
+        return Response({"error": f"محصول با id={product_id} یافت نشد"}, status=404)
+
+    # موجودی همان محصول در همان انبار
+    available_qty = InventoryItem.objects.filter(
+        product_code=product.product_code,  # بررسی با کد اختصاصی
+        warehouse=warehouse
+    ).count()
+
+    return Response({
+        "product": product.name,
+        "warehouse": warehouse.name,
+        "available_quantity": available_qty
+    })
+
+
+
+
+
+
+
+
+
+# views.py
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import BuyInvoiceItem
+
+@api_view(['GET'])
+def product_units(request):
+    product_id = request.GET.get('product_id')
+    if not product_id:
+        return Response({"units": []})
+
+    # گرفتن همه آیتم‌های خرید که برای این محصول ثبت شده و unit دارند
+    items = BuyInvoiceItem.objects.filter(product_id=product_id).exclude(unit=None).select_related('unit')
+    
+    # گرفتن لیست واحدهای یکتا
+    units = []
+    for item in items:
+        if item.unit.id not in [u['id'] for u in units]:
+            units.append({"id": item.unit.id, "title": item.unit.title})
+    
+    return Response({"units": units})
 
 

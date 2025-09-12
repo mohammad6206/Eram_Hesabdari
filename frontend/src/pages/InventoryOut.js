@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../api/axiosInstance";
 
-export default function Inventory() {
-    const [inventoryItems, setInventoryItems] = useState([]);
+export default function InventoryOut() {
+    const [inventoryOutItems, setInventoryOutItems] = useState([]);
     const [warehouses, setWarehouses] = useState([]);
     const [search, setSearch] = useState("");
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [invRes, whRes] = await Promise.all([
-                    axiosInstance.get("/inventory-items/"),
+                const [outRes, whRes] = await Promise.all([
+                    axiosInstance.get("/inventory-out-items/"), // API خروجی
                     axiosInstance.get("/warehouses/"),
                 ]);
-                setInventoryItems(invRes.data);
+                setInventoryOutItems(outRes.data);
                 setWarehouses(whRes.data);
             } catch (err) {
                 console.error(err);
@@ -23,12 +23,11 @@ export default function Inventory() {
     }, []);
 
     const warehouseStock = warehouses.map((w) => {
-        const count = inventoryItems.filter((item) => item.warehouse === w.id).length;
+        const count = inventoryOutItems.filter((item) => item.warehouse === w.id).length;
         return { ...w, count };
     });
 
-    // فیلتر کردن بر اساس همه فیلدها به جز تعداد و واحد
-    const filteredItems = inventoryItems.filter((item) => {
+    const filteredItems = inventoryOutItems.filter((item) => {
         const searchLower = search.toLowerCase();
         return (
             item.product_name?.toLowerCase().includes(searchLower) ||
@@ -48,17 +47,17 @@ export default function Inventory() {
                 position: "relative",
                 marginBottom: "25px"
             }}>
-                {/* عنوان وسط */}
+                {/* عنوان */}
                 <h2 style={{
                     color: "#27ae60",
                     fontSize: "3rem",
                     margin: 0,
                     textAlign: "center",
                 }}>
-                    ورودی انبار
+                    خروجی انبار
                 </h2>
 
-                {/* باکس موجودی انبار کنار عنوان */}
+                {/* باکس موجودی خروجی */}
                 <div style={{
                     position: "absolute",
                     left: 0,
@@ -71,8 +70,8 @@ export default function Inventory() {
                     lineHeight: "1.5",
                     height: "fit-content"
                 }}>
-                    <h4 style={{ marginBottom: "10px", color: "#27ae60", fontSize: "1rem", borderBottom: "1px solid #eee", paddingBottom: "5px", textAlign: "center" }}>ورودی انبارها</h4>
-                    {warehouseStock.map((w, idx) => (
+                    <h4 style={{ marginBottom: "10px", color: "#27ae60", fontSize: "1rem", borderBottom: "1px solid #eee", paddingBottom: "5px", textAlign: "center" }}>خروجی انبارها</h4>
+                    {warehouseStock.map((w) => (
                         <div key={w.id} style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
                             <span>{w.name}:</span>
                             <span style={{ color: "#34495e", fontSize: "14px", fontWeight: "bold" }}>{w.count} کالا</span>
@@ -105,8 +104,8 @@ export default function Inventory() {
                                 <th style={{ padding: "12px", textAlign: "center" }}>ردیف</th>
                                 <th style={{ padding: "12px", textAlign: "center" }}>نام کالا</th>
                                 <th style={{ padding: "12px", textAlign: "center" }}>کد اختصاصی</th>
-                                <th style={{ padding: "12px", textAlign: "center" }}>شماره فاکتور خرید</th>
-                                <th style={{ padding: "12px", textAlign: "center" }}>انبار مقصد</th>
+                                <th style={{ padding: "12px", textAlign: "center" }}>شماره فاکتور فروش</th>
+                                <th style={{ padding: "12px", textAlign: "center" }}>انبار خروج</th>
                                 <th style={{ padding: "12px", textAlign: "center" }}>سریال کالا</th>
                             </tr>
                         </thead>
@@ -129,9 +128,9 @@ export default function Inventory() {
                                         <td style={{
                                             padding: "10px",
                                             textAlign: "center",
-                                            maxWidth: "120px",   // عرض محدود
-                                            wordWrap: "break-word", // شکستن متن بلند
-                                            overflowWrap: "break-word" // پشتیبانی بیشتر
+                                            maxWidth: "120px",
+                                            wordWrap: "break-word",
+                                            overflowWrap: "break-word"
                                         }}>
                                             {item.serial_number}
                                         </td>

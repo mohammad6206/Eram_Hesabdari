@@ -24,7 +24,7 @@ SECRET_KEY=config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG =config('DEBUG', cast=bool, default=False)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=['127.0.0.1:8000', 'localhost','127.0.0.1'], cast=list)
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=list)
 
 
 # Application definition
@@ -79,41 +79,36 @@ WSGI_APPLICATION = 'HesabdariProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+import os
+
 if DEBUG:
     DATABASES = {
         'default': {
-            'ENGINE': 'mssql',
-            'NAME': 'EramHesabdari',         
-            'USER': 'sa',           
-            'PASSWORD': '@Mokhtari1382',     
+            'ENGINE': 'django.db.backends.mysql',  # مهم
+            'NAME': 'eramhesabdari',
+            'USER': 'root',
+            'PASSWORD': '@Mokhtari1382',
             'HOST': 'localhost',
-            'PORT': '1433',
-            'OPTIONS': {
-                    'driver': 'ODBC Driver 17 for SQL Server',
-                    'Encrypt': 'no',
-                    'TrustServerCertificate': 'yes',
-            },
+            'PORT': '3306',
         }
     }
 
 
+
 else:
 
+
     DATABASES = {
-    'default': {
-        'ENGINE': 'mssql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT', default='1433'),
-        'OPTIONS': {
-                'driver': 'ODBC Driver 17 for SQL Server',
-                'Encrypt': 'no',
-                'TrustServerCertificate': 'yes',
-        },
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',  
+            'NAME': config('DB_NAME'),
+            'USER': config('DB_USER'),
+            'PASSWORD': config('DB_PASSWORD'),
+            'HOST': config('DB_HOST'),
+            'PORT': config('DB_PORT'),
+        }
     }
-}
+
 
 
 # Password validation
@@ -165,19 +160,19 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
 
 
+from datetime import timedelta
+
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     )
 }
 
-from datetime import timedelta
-
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=24),  # توکن دسترسی تا 24 ساعت معتبر باشه
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),   # توکن رفرش تا 7 روز معتبر باشه
-    "ROTATE_REFRESH_TOKENS": False,
-    "BLACKLIST_AFTER_ROTATION": True,
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=10),  # 24 ساعت
+    "ROTATE_REFRESH_TOKENS": False,               # حذف رفرش
+    "BLACKLIST_AFTER_ROTATION": False,            # حذف رفرش
+    "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
 

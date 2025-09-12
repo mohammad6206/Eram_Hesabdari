@@ -356,17 +356,22 @@ def update_sell_invoice_total(sender, instance, **kwargs):
 
 
 
+from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
-
+# ----------------------------------
+# InventoryItem - ورود به انبار
+# ----------------------------------
 class InventoryItem(models.Model):
     buy_invoice_item = models.ForeignKey(
-        BuyInvoiceItem, on_delete=models.CASCADE, related_name="inventory_items"
+        "HesabdariApp.BuyInvoiceItem", on_delete=models.CASCADE, related_name="inventory_items"
     )
     product_name = models.CharField("نام کالا", max_length=200)
     product_code = models.CharField("کد اختصاصی", max_length=100)
     invoice_number = models.CharField("شماره فاکتور", max_length=50)
     serial_number = models.CharField("سریال کالا", max_length=150, unique=True)
-    warehouse = models.ForeignKey("Warehouse", verbose_name="انبار مقصد", on_delete=models.CASCADE)
+    warehouse = models.ForeignKey("HesabdariApp.Warehouse", verbose_name="انبار مقصد", on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = "کالای ورودی به انبار"
@@ -379,41 +384,132 @@ class InventoryItem(models.Model):
     def __str__(self):
         return f"{self.product_name} | {self.serial_number} | {self.warehouse.name}"
 
+    @staticmethod
+    def available_quantity(product, warehouse):
+        return InventoryItem.objects.filter(
+            product_code=product.product_code,
+            warehouse=warehouse
+        ).count()
 
-
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-
-# سگنال برای ایجاد آیتم‌های انبار بعد از ثبت BuyInvoiceItem
-@receiver(post_save, sender=BuyInvoiceItem)
+# ایجاد آیتم‌های انبار بعد از ثبت BuyInvoiceItem
+@receiver(post_save, sender="HesabdariApp.BuyInvoiceItem")
 def create_inventory_items(sender, instance, created, **kwargs):
     if created:
-        # تعداد هر آیتم
-        qty = int(instance.quantity)
-        
+        if not instance.product or not instance.buy_invoice:
+            return
+        qty = int(instance.quantity or 0)
         for i in range(1, qty + 1):
-            # سریال کالا: کد اختصاصی + شماره فاکتور + شماره سریال
-            serial = f"{instance.product_code}{instance.buy_invoice.invoice_number} - {i}"
-            
-            # ایجاد آیتم انبار
+            serial = f"{instance.product.product_code}{instance.buy_invoice.invoice_number}-{i}"
             InventoryItem.objects.create(
                 buy_invoice_item=instance,
                 product_name=instance.product.name,
-                product_code=instance.product_code,
+                product_code=instance.product.product_code,
                 invoice_number=instance.buy_invoice.invoice_number,
                 serial_number=serial,
                 warehouse=instance.buy_invoice.destination
             )
 
-
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-
-@receiver(post_save, sender=BuyInvoice)
+# بروزرسانی انبار اگر انبار مقصد فاکتور تغییر کرد
+@receiver(post_save, sender="HesabdariApp.BuyInvoice")
 def update_inventory_items_warehouse(sender, instance, **kwargs):
-    # بررسی کنیم اگر انبار مقصد تغییر کرده باشد
-    inventory_items = InventoryItem.objects.filter(buy_invoice_item__buy_invoice=instance)
-    for item in inventory_items:
+    for item in InventoryItem.objects.filter(buy_invoice_item__buy_invoice=instance):
         if item.warehouse != instance.destination:
             item.warehouse = instance.destination
             item.save()
+
+# ----------------------------------
+# InventoryOutItem - خروج از انبار
+# ----------------------------------
+class InventoryOutItem(models.Model):
+    sell_invoice_item = models.ForeignKey(
+        "HesabdariApp.SellInvoiceItem", on_delete=models.CASCADE, related_name="inventory_out_items"
+    )
+    product_name = models.CharField("نام کالا", max_length=200)
+    product_code = models.CharField("کد اختصاصی", max_length=100)
+    invoice_number = models.CharField("شماره فاکتور", max_length=50)
+    serial_number = models.CharField("سریال کالا", max_length=150)
+    warehouse = models.ForeignKey("HesabdariApp.Warehouse", verbose_name="خروج از انبار", on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = "کالای خروجی از انبار"
+        verbose_name_plural = "کالاهای خروجی از انبار"
+        indexes = [
+            models.Index(fields=["product_code", "invoice_number"]),
+            models.Index(fields=["serial_number"]),
+        ]
+
+    def __str__(self):
+        return f"{self.product_name} | {self.serial_number} | {self.warehouse.name}"
+
+# ایجاد آیتم‌های خروجی بعد از ثبت SellInvoiceItem
+@receiver(post_save, sender="HesabdariApp.SellInvoiceItem")
+def create_inventory_out_items(sender, instance, created, **kwargs):
+    if created:
+        qty = int(instance.quantity)
+        available_items = InventoryItem.objects.filter(
+            product_code=instance.product.product_code,
+            warehouse=instance.sell_invoice.destination
+        )[:qty]
+        if available_items.count() < qty:
+            raise ValueError("موجودی انبار کافی نیست!")
+        for inv_item in available_items:
+            inv_item.delete()
+            InventoryOutItem.objects.create(
+                sell_invoice_item=instance,
+                product_name=instance.product.name,
+                product_code=instance.product.product_code,
+                invoice_number=instance.sell_invoice.invoice_number,
+                serial_number=inv_item.serial_number,
+                warehouse=instance.sell_invoice.destination
+            )
+
+# بروزرسانی انبار خروجی اگر انبار مقصد فاکتور فروش تغییر کرد
+@receiver(post_save, sender="HesabdariApp.SellInvoice")
+def update_inventory_out_items_warehouse(sender, instance, **kwargs):
+    for item in InventoryOutItem.objects.filter(sell_invoice_item__sell_invoice=instance):
+        if item.warehouse != instance.destination:
+            item.warehouse = instance.destination
+            item.save()
+
+
+
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from HesabdariApp.models import Product, InventoryItem, InventoryOutItem
+
+
+@receiver(post_save, sender=Product)
+def update_inventory_items_product(sender, instance, **kwargs):
+    """
+    وقتی Product تغییر کند، نام، کد کالا و سریال در ورودی و خروجی انبار
+    مرتبط با آن محصول بروزرسانی می‌شود.
+    """
+    new_name = instance.name
+    new_code = instance.product_code
+
+    # بروزرسانی ورودی‌های انبار (BuyInvoiceItem → Product)
+    for item in InventoryItem.objects.filter(buy_invoice_item__product=instance):
+        try:
+            suffix = item.serial_number.split("-")[-1]  # بخش آخر سریال (مثل 1، 2، 3)
+        except Exception:
+            suffix = ""  # اگر سریال ساختار نداشت
+        new_serial = f"{new_code}{item.invoice_number}-{suffix}"
+
+        item.product_name = new_name
+        item.product_code = new_code
+        item.serial_number = new_serial
+        item.save(update_fields=["product_name", "product_code", "serial_number"])
+
+    # بروزرسانی خروجی‌های انبار (SellInvoiceItem → Product)
+    for item in InventoryOutItem.objects.filter(sell_invoice_item__product=instance):
+        try:
+            suffix = item.serial_number.split("-")[-1]
+        except Exception:
+            suffix = ""
+        new_serial = f"{new_code}{item.invoice_number}-{suffix}"
+
+        item.product_name = new_name
+        item.product_code = new_code
+        item.serial_number = new_serial
+        item.save(update_fields=["product_name", "product_code", "serial_number"])

@@ -30,6 +30,7 @@ export default function Product() {
   const [searchText, setSearchText] = useState("");
   const [dateFilter, setDateFilter] = useState({ from: null, to: null });
   const [dateField, setDateField] = useState("created_at");
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -427,9 +428,10 @@ export default function Product() {
                   <div className="d-flex flex-column justify-content-center align-items-center gap-2">
                     <button
                       className="btn btn-warning btn-sm w-100"
-                      data-bs-toggle="modal"
-                      data-bs-target="#editProductModal"
-                      onClick={() => handleEdit(p)}
+                      onClick={() => {
+                        handleEdit(p);       // بارگذاری محصول برای ویرایش
+                        setShowEditModal(true); // باز کردن مودال
+                      }}
                     >
                       ویرایش
                     </button>
@@ -454,31 +456,22 @@ export default function Product() {
         </table>
       </div>
 
-      {/* مودال ویرایش */}
-      <div
-        className="modal fade"
-        id="editProductModal"
-        tabIndex="-1"
-        aria-labelledby="editProductModalLabel"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog modal-lg">
-          <div className="modal-content" dir="rtl">
-            <div className="modal-header">
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-              <h5 className="modal-title text-center w-100" id="editProductModalLabel">
-                ویرایش کالا
-              </h5>
-            </div>
-            <div className="modal-body">
-              {editingProduct && (
+      // مودال ویرایش
+      {showEditModal && editingProduct && (
+        <div className="modal fade show d-block" tabIndex="-1" aria-modal="true" role="dialog" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content" dir="rtl">
+              <div className="modal-header">
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowEditModal(false)}
+                ></button>
+                <h5 className="modal-title w-100 text-center">ویرایش کالا</h5>
+              </div>
+              <div className="modal-body">
+                {/* فرم ویرایش */}
                 <div className="row g-3">
-
                   {/* دستگاه */}
                   <div className="col-md-4">
                     <label className="form-label">دستگاه</label>
@@ -491,9 +484,7 @@ export default function Product() {
                     >
                       <option value="">انتخاب دستگاه</option>
                       {devices.map((d) => (
-                        <option key={d.id} value={d.id}>
-                          {d.title}
-                        </option>
+                        <option key={d.id} value={d.id}>{d.title}</option>
                       ))}
                     </select>
                   </div>
@@ -534,9 +525,7 @@ export default function Product() {
                     >
                       <option value="">انتخاب گروه</option>
                       {groups.map((g) => (
-                        <option key={g.id} value={g.id}>
-                          {g.title}
-                        </option>
+                        <option key={g.id} value={g.id}>{g.title}</option>
                       ))}
                     </select>
                   </div>
@@ -575,28 +564,30 @@ export default function Product() {
                     />
                   </div>
                 </div>
-              )}
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                بستن
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={handleUpdate}
-              >
-                ذخیره تغییرات
-              </button>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowEditModal(false)}
+                >
+                  بستن
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => {
+                    handleUpdate();
+                    setShowEditModal(false); // بستن مودال بعد از ذخیره
+                  }}
+                >
+                  ذخیره تغییرات
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-
+      )}
 
     </div>
   );

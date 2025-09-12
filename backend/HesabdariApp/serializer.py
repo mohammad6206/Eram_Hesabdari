@@ -69,6 +69,7 @@ class BuyInvoiceItemSerializer(serializers.ModelSerializer):
     )
     unit_title = serializers.CharField(source="unit.title", read_only=True)  # اضافه شد
     product_name = serializers.CharField(source="product.name", read_only=True)  # 👈 اضافه شد
+    product_code = serializers.CharField(source="product.product_code", read_only=True)  # 👈 از مدل Product خوانده میشه
 
     class Meta:
         model = models.BuyInvoiceItem
@@ -78,9 +79,9 @@ class BuyInvoiceItemSerializer(serializers.ModelSerializer):
             "row_number",
             "product",
             "product_code",
+            "product_name",
             "unit",           # اضافه شده
             "unit_title",
-            "product_name",
             "quantity",
             "unit_price",
             "total_amount",
@@ -89,7 +90,15 @@ class BuyInvoiceItemSerializer(serializers.ModelSerializer):
             "final_amount",
             "description",
         ]
-        read_only_fields = ["row_number", "total_amount", "tax_amount", "final_amount"]
+        read_only_fields = [
+            "row_number", 
+            "total_amount", 
+            "tax_amount", 
+            "final_amount",
+            "product_name",
+            "product_code",
+            "unit_title",
+        ]
 
 
 class BuyInvoiceSerializer(serializers.ModelSerializer):
@@ -139,6 +148,7 @@ class SellInvoiceItemSerializer(serializers.ModelSerializer):
     )
     unit_title = serializers.CharField(source="unit.title", read_only=True)  # اضافه شد
     product_name = serializers.CharField(source="product.name", read_only=True)  # 👈 اضافه شد
+    product_code = serializers.CharField(source="product.product_code", read_only=True)  # 👈 از مدل Product خوانده میشه
 
     class Meta:
         model = models.SellInvoiceItem
@@ -159,7 +169,15 @@ class SellInvoiceItemSerializer(serializers.ModelSerializer):
             "final_amount",
             "description",
         ]
-        read_only_fields = ["row_number", "total_amount", "tax_amount", "final_amount"]
+        read_only_fields = [
+            "row_number", 
+            "total_amount", 
+            "tax_amount", 
+            "final_amount",
+            "product_name",
+            "product_code",
+            "unit_title",
+        ]
 
 
 
@@ -200,8 +218,37 @@ class SellInvoiceSerializer(serializers.ModelSerializer):
 
 
 
+from rest_framework import serializers
+from .models import InventoryItem, InventoryOutItem
 
 class InventoryItemSerializer(serializers.ModelSerializer):
+    # نام انبار برای راحتی نمایش
+    warehouse_name = serializers.CharField(source="warehouse.name", read_only=True)
+
     class Meta:
-        model = models.InventoryItem
-        fields = "__all__"
+        model = InventoryItem
+        fields = [
+            "id",
+            "product_name",
+            "product_code",
+            "invoice_number",
+            "serial_number",
+            "warehouse",
+            "warehouse_name",
+        ]
+
+
+class InventoryOutItemSerializer(serializers.ModelSerializer):
+    warehouse_name = serializers.CharField(source="warehouse.name", read_only=True)
+
+    class Meta:
+        model = InventoryOutItem
+        fields = [
+            "id",
+            "product_name",
+            "product_code",
+            "invoice_number",
+            "serial_number",
+            "warehouse",
+            "warehouse_name",
+        ]
