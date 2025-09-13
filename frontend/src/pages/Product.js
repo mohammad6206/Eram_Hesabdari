@@ -456,7 +456,6 @@ export default function Product() {
         </table>
       </div>
 
-      // مودال ویرایش
       {showEditModal && editingProduct && (
         <div className="modal fade show d-block" tabIndex="-1" aria-modal="true" role="dialog" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <div className="modal-dialog modal-lg">
