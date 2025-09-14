@@ -24,8 +24,13 @@ SECRET_KEY=config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG =config('DEBUG', cast=bool, default=False)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS',default=['127.0.0.1:8000', 'localhost','127.0.0.1'], cast=list)
+from decouple import config, Csv
 
+ALLOWED_HOSTS = config(
+    "ALLOWED_HOSTS",
+    cast=Csv(),
+    default="127.0.0.1:8000,localhost,tebnologycompany.ir"
+)
 
 # Application definition
 
@@ -83,32 +88,30 @@ import os
 
 if DEBUG:
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',  # مهم
-            'NAME': 'eramhesabdari',
-            'USER': 'root',
-            'PASSWORD': '@Mokhtari1382',
-            'HOST': 'localhost',
-            'PORT': '3306',
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": "eramhesabdari",
+            "USER": "root",
+            "PASSWORD": "@Mokhtari1382",
+            "HOST": "localhost",
+            "PORT": "3306",
         }
     }
-
-
-
 else:
-
-
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',  
-            'NAME': config('DB_NAME'),
-            'USER': config('DB_USER'),
-            'PASSWORD': config('DB_PASSWORD'),
-            'HOST': config('DB_HOST'),
-            'PORT': config('DB_PORT'),
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": config("DB_NAME"),
+            "USER": config("DB_USER"),
+            "PASSWORD": config("DB_PASSWORD"),
+            "HOST": config("DB_HOST", default="localhost"),
+            "PORT": config("DB_PORT", default="3306"),
+            "OPTIONS": {
+                "charset": "utf8mb4",
+                "init_command": "SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci'"
+            },
         }
     }
-
 
 
 # Password validation
@@ -158,7 +161,10 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    "https://tebnologycompany.ir",
+    "https://www.tebnologycompany.ir",
+]
 
 
 from datetime import timedelta
