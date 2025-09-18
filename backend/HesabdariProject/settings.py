@@ -26,11 +26,15 @@ DEBUG =config('DEBUG', cast=bool, default=False)
 
 from decouple import config, Csv
 
-ALLOWED_HOSTS = config(
-    "ALLOWED_HOSTS",
-    cast=Csv(),
-    default="127.0.0.1:8000,localhost,tebnologycompany.ir"
-)
+# مقدار ALLOWED_HOSTS از .env می‌گیرد (به صورت CSV)
+_env_hosts = config("ALLOWED_HOSTS", default="127.0.0.1,localhost,127.0.0.1:8000", cast=Csv())
+
+# اگر مقدار "*" باشد → همه هاست‌ها مجاز هستند
+if len(_env_hosts) == 1 and _env_hosts[0].strip() == "*":
+    ALLOWED_HOSTS = ["*"]
+else:
+    ALLOWED_HOSTS = [host.strip() for host in _env_hosts if host.strip()]
+
 
 # Application definition
 
@@ -164,6 +168,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = [
     "https://tebnologycompany.ir",
     "https://www.tebnologycompany.ir",
+    "http://127.0.0.1:8000",
+    "http://localhost:3000",
 ]
 
 

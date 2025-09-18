@@ -165,6 +165,7 @@ export default function Product() {
     try {
       await axiosInstance.delete(`${API_URL}/api/products/${id}/`);
       fetchProducts();
+      fetchNextProductNumber();
     } catch (err) {
       console.error(err);
     }

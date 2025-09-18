@@ -4,7 +4,7 @@ import moment from "moment-jalaali";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
-
+import { Link } from "react-router-dom";
 export default function SellInvoiceList() {
     const [invoices, setInvoices] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -151,13 +151,17 @@ export default function SellInvoiceList() {
     return (
         <div className="container my-4 p-4 border rounded shadow-sm" dir="rtl">
             <div className="mb-3 text-start">
-                <button
-                    className="btn btn-success"
-                    onClick={() => (window.location.href = "/sell-invoice")}
-                >
-                    ثبت فاکتور جدید
-                </button>
+                <div className="mb-3 text-start">
+                    <Link to="/sell-invoice" className="btn btn-success">
+                        ثبت فاکتور جدید
+                    </Link>
+                </div>
             </div>
+
+
+
+
+
 
             <h2 className="text-center mb-4">لیست فاکتورهای فروش</h2>
 

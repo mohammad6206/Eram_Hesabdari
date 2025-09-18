@@ -309,23 +309,31 @@ export default function BuyInvoice() {
           {rows.map((row, index) => (
             <tr key={index}>
               <td style={tdStyle}>{index + 1}</td>
+
+              {/* انتخاب محصول */}
               <td style={tdStyle}>
                 <select
-                  value={row.productId || ""}
-                  onChange={e => handleInputChange(index, "productId", e.target.value)}
+                  value={row.product || ""}
+                  onChange={e => handleInputChange(index, "product", e.target.value)}
                   style={{ width: "150px" }}
                 >
                   <option value="" hidden>انتخاب کالا</option>
-                  {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  {products.map(p => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
                 </select>
               </td>
+
+              {/* کد محصول فقط نمایش */}
               <td style={tdStyle}>
                 <input type="text" value={row.product_code || ""} readOnly style={{ width: "100px" }} />
               </td>
+
+              {/* انتخاب واحد و مقدار */}
               <td style={tdStyle}>
                 <select
-                  value={row.unitId}
-                  onChange={e => handleInputChange(index, "unitId", e.target.value)}
+                  value={row.unit || ""}
+                  onChange={e => handleInputChange(index, "unit", e.target.value)}
                   style={{ width: "100px", marginBottom: "5px" }}
                 >
                   {units.map(u => <option key={u.id} value={u.id}>{u.title}</option>)}
@@ -337,28 +345,48 @@ export default function BuyInvoice() {
                   style={{ width: "60px" }}
                 />
               </td>
+
+              {/* قیمت واحد */}
               <td style={tdStyle}>
                 <input
                   type="text"
                   value={formatNumber(row.unitPrice)}
-                  onChange={e => handleInputChange(index, "unitPrice", e.target.value.replace(/,/g, ""))}
+                  onChange={e => handleInputChange(index, "unit_price", e.target.value.replace(/,/g, ""))}
                   style={{ width: "100px" }}
                 />
               </td>
+
+              {/* جمع */}
               <td style={tdStyle}>
                 <input type="text" value={formatNumber(row.totalAmount)} readOnly style={{ width: "100px" }} />
               </td>
+
+              {/* مالیات */}
               <td style={tdStyle}>
-                <input type="number" value={row.taxRate} onChange={e => handleInputChange(index, "taxRate", e.target.value)} style={{ width: "80px" }} />
+                <input
+                  type="number"
+                  value={row.taxRate || ""}
+                  onChange={e => handleInputChange(index, "tax_rate", e.target.value)}
+                  style={{ width: "80px" }}
+                />
               </td>
+
               <td style={tdStyle}>
                 <input type="text" value={formatNumber(row.taxAmount)} readOnly style={{ width: "100px" }} />
               </td>
+
               <td style={tdStyle}>
                 <input type="text" value={formatNumber(row.finalAmount)} readOnly style={{ width: "100px" }} />
               </td>
+
+              {/* توضیحات */}
               <td style={tdStyle}>
-                <input type="text" value={row.description} onChange={e => handleInputChange(index, "description", e.target.value)} style={{ width: "150px" }} />
+                <input
+                  type="text"
+                  value={row.description || ""}
+                  onChange={e => handleInputChange(index, "description", e.target.value)}
+                  style={{ width: "150px" }}
+                />
               </td>
             </tr>
           ))}
