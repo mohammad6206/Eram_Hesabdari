@@ -21,7 +21,7 @@ export default function BuyInvoice() {
   const [createdAt, setCreatedAt] = useState(null);
   const [errors, setErrors] = useState({});
   const [units, setUnits] = useState([]);
-  const [selectedUnitId, setSelectedUnitId] = useState("");
+  const [orderDate, setOrderDate] = useState(null);
 
   const thStyle = { border: "1px solid #ccc", padding: "12px", textAlign: "center" };
   const tdStyle = { border: "1px solid #ccc", padding: "4px", textAlign: "center" };
@@ -264,7 +264,34 @@ export default function BuyInvoice() {
           </div>
           {errors.invoiceNumber && <p style={{ color: "red", fontSize: "0.8rem", marginTop: "4px" }}>{errors.invoiceNumber}</p>}
         </div>
-
+        {/* تاریخ سفارش خرید */}
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <span style={{ fontWeight: "bold" }}>تاریخ سفارش خرید:</span>
+            <DatePicker
+              calendar={persian}
+              locale={persian_fa}
+              value={orderDate} // 🔹 state جدید مخصوص تاریخ سفارش خرید
+              onChange={setOrderDate}
+              format="HH:mm YYYY/MM/DD"
+              calendarPosition="bottom-right"
+              style={{
+                border: "1px solid #ccc",
+                borderRadius: "4px",
+                padding: "4px 8px",
+                width: "200px"
+              }}
+              inputClass="form-input"
+              placeholder="انتخاب تاریخ"
+              timePicker
+            />
+          </div>
+          {errors.orderDate && (
+            <p style={{ color: "red", fontSize: "0.8rem", marginTop: "4px" }}>
+              {errors.orderDate}
+            </p>
+          )}
+        </div>
         <div style={{ display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <span style={{ fontWeight: "bold" }}>تاریخ ایجاد:</span>
@@ -409,14 +436,41 @@ export default function BuyInvoice() {
           - حذف آخرین ردیف
         </button>
       </div>
-
       {/* اطلاعات نهایی فاکتور */}
       {errors.rows && <p style={{ color: "red" }}>{errors.rows}</p>}
-      <div style={{ marginTop: "30px", padding: "20px", border: "1px solid #27ae60", borderRadius: "10px", backgroundColor: "#f9fdfb", boxShadow: "0 3px 8px rgba(0,0,0,0.05)" }}>
-        <h3 style={{ marginBottom: "20px", color: "#27ae60", borderBottom: "2px solid #27ae60", paddingBottom: "8px" }}>اطلاعات نهایی فاکتور</h3>
-        <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "30px" }}>
-          <div style={{ flex: 1, minWidth: "250px" }}>
-            <label style={{ fontWeight: "bold", display: "block", marginBottom: "5px" }}>مقصد کالا:</label>
+      <div
+        style={{
+          marginTop: "30px",
+          padding: "20px",
+          border: "1px solid #27ae60",
+          borderRadius: "10px",
+          backgroundColor: "#f9fdfb",
+          boxShadow: "0 3px 8px rgba(0,0,0,0.05)"
+        }}
+      >
+        <h3
+          style={{
+            marginBottom: "20px",
+            color: "#27ae60",
+            borderBottom: "2px solid #27ae60",
+            paddingBottom: "8px"
+          }}
+        >
+          اطلاعات نهایی فاکتور
+        </h3>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+            gap: "20px"
+          }}
+        >
+          {/* مقصد کالا */}
+          <div>
+            <label style={{ fontWeight: "bold", display: "block", marginBottom: "5px" }}>
+              مقصد کالا:
+            </label>
             <select
               value={invoiceData?.destination?.id || ""}
               onChange={e =>
@@ -425,15 +479,101 @@ export default function BuyInvoice() {
                   destination: warehouses.find(w => w.id === parseInt(e.target.value))
                 })
               }
-              style={{ border: "1px solid #27ae60", borderRadius: "6px", padding: "8px 12px", fontWeight: "bold", width: "350px" }}
+              style={{
+                border: "1px solid #27ae60",
+                borderRadius: "6px",
+                padding: "6px 10px",
+                fontWeight: "bold",
+                width: "100%"
+              }}
             >
               <option value="" hidden>انتخاب مقصد</option>
-              {warehouses.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
+              {warehouses.map(w => (
+                <option key={w.id} value={w.id}>
+                  {w.name}
+                </option>
+              ))}
             </select>
-            {errors.destination && <p style={{ color: "red", fontSize: "0.8rem" }}>{errors.destination}</p>}
+            {errors.destination && (
+              <p style={{ color: "red", fontSize: "0.8rem" }}>{errors.destination}</p>
+            )}
           </div>
-          <div style={{ flex: 1, minWidth: "250px" }}>
-            <label style={{ fontWeight: "bold", display: "block", marginBottom: "8px" }}>آپلود فاکتور :</label>
+
+          {/* هزینه حمل */}
+          <div>
+            <label style={{ fontWeight: "bold", display: "block", marginBottom: "5px" }}>
+              هزینه حمل و نقل (ریال):
+            </label>
+            <input
+              type="text"
+              value={
+                invoiceData?.transportCost
+                  ? invoiceData.transportCost.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  : ""
+              }
+              onChange={e => {
+                // تبدیل اعداد فارسی به انگلیسی
+                const persianDigits = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
+                let rawValue = e.target.value.replace(/,/g, "");
+                persianDigits.forEach((d, i) => {
+                  rawValue = rawValue.replace(new RegExp(d, "g"), i.toString());
+                });
+
+                const numberValue = parseInt(rawValue) || 0;
+                setInvoiceData({
+                  ...invoiceData,
+                  transportCost: numberValue
+                });
+              }}
+              style={{
+                border: "1px solid #27ae60",
+                borderRadius: "6px",
+                padding: "6px 10px",
+                fontWeight: "bold",
+                width: "100%",
+                textAlign: "center",
+              }}
+            />
+            {errors.transportCost && (
+              <p style={{ color: "red", fontSize: "0.8rem" }}>{errors.transportCost}</p>
+            )}
+          </div>
+
+
+          {/* شیوه حمل و نقل */}
+          <div>
+            <label style={{ fontWeight: "bold", display: "block", marginBottom: "5px" }}>
+              شیوه حمل و نقل:
+            </label>
+            <select
+              value={invoiceData?.transportMethod || ""}
+              onChange={e =>
+                setInvoiceData({
+                  ...invoiceData,
+                  transportMethod: e.target.value
+                })
+              }
+              style={{
+                border: "1px solid #27ae60",
+                borderRadius: "6px",
+                padding: "6px 10px",
+                fontWeight: "bold",
+                width: "100%"
+              }}
+            >
+              <option value="" hidden>انتخاب شیوه حمل</option>
+              <option value="زمینی">زمینی</option>
+              <option value="هوایی">هوایی</option>
+              <option value="دریایی">دریایی</option>
+              <option value="پیک">پیک</option>
+            </select>
+          </div>
+
+          {/* آپلود فاکتور */}
+          <div>
+            <label style={{ fontWeight: "bold", display: "block", marginBottom: "8px" }}>
+              آپلود فاکتور :
+            </label>
             <input
               type="file"
               ref={fileInputRef}
@@ -448,14 +588,37 @@ export default function BuyInvoice() {
                   });
                 }
               }}
-              style={{ border: errors.invoiceFile ? "1px solid red" : "1px solid #ccc", padding: "6px", borderRadius: "6px" }}
+              style={{
+                border: errors.invoiceFile ? "1px solid red" : "1px solid #ccc",
+                padding: "5px",
+                borderRadius: "6px",
+                width: "100%"
+              }}
             />
-            {errors.invoiceFile && <p style={{ color: "red", fontSize: "0.8rem" }}>{errors.invoiceFile}</p>}
+            {errors.invoiceFile && (
+              <p style={{ color: "red", fontSize: "0.8rem" }}>{errors.invoiceFile}</p>
+            )}
           </div>
-          <div style={{ flex: 1, minWidth: "200px" }}>
-            <label style={{ fontWeight: "bold", display: "block", marginBottom: "8px" }}>جمع کل(ریال) :</label>
-            <div style={{ border: "1px solid #ccc", borderRadius: "6px", padding: "10px", width: "100%", backgroundColor: "#f8f9fa", fontWeight: "bold", textAlign: "center", fontSize: "1rem", userSelect: "none" }}>
-              {formatNumber(rows.reduce((sum, r) => sum + (parseFloat(r.finalAmount) || 0), 0))}
+
+          {/* جمع کل */}
+          <div>
+            <label style={{ fontWeight: "bold", display: "block", marginBottom: "8px" }}>
+              جمع کل (ریال):
+            </label>
+            <div
+              style={{
+                border: "1px solid #ccc",
+                borderRadius: "6px",
+                padding: "8px",
+                backgroundColor: "#f8f9fa",
+                fontWeight: "bold",
+                textAlign: "center",
+                fontSize: "0.95rem"
+              }}
+            >
+              {formatNumber(
+                rows.reduce((sum, r) => sum + (parseFloat(r.finalAmount) || 0), 0)
+              )}
             </div>
           </div>
         </div>
@@ -468,7 +631,7 @@ export default function BuyInvoice() {
           </button>
         </div>
       </div>
-    </div>
+    </div >
   );
 }
 

@@ -1,0 +1,259 @@
+/* ============================
+   کانتینر اصلی
+============================ */
+.warehouse-transfer-container {
+    direction: rtl;
+    text-align: right;
+    padding: 20px;
+    font-family: 'Tahoma', sans-serif;
+}
+
+/* تیتر صفحه */
+.warehouse-transfer-container h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* ============================
+   شماره فاکتور
+============================ */
+/* کانتینر شماره فاکتور */
+.warehouse-transfer-invoice {
+    display: flex;
+    justify-content: flex-start;
+    /* قرارگیری سمت راست */
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+/* input شماره فاکتور */
+.warehouse-transfer-input {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    min-width: 120px;
+    /* کوچکتر از حالت عادی */
+    max-width: 180px;
+}
+
+/* دکمه بارگذاری فاکتور */
+.warehouse-transfer-btn {
+    padding: 6px 12px;
+    background-color: #1abc9c;
+    color: #fff;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.warehouse-transfer-btn:hover {
+    background-color: #16a085;
+}
+
+/* ردیف های کالا (وقتی شماره فاکتور زده شد یا سریال وارد شد) */
+.warehouse-transfer-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+    margin-top: 10px;
+
+    /* اضافه کنید */
+    align-self: flex-start;
+    /* اگر والدش flex است */
+    margin-left: 0;
+    /* فاصله از چپ صفر */
+    margin-right: auto;
+    /* فاصله از راست خودکار */
+}
+
+/* هر ردیف کالا */
+.warehouse-transfer-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    /* سمت چپ کانتینر */
+    gap: 10px;
+    flex-wrap: wrap;
+    background: #f8f9fa;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+}
+
+/* اطلاعات محصول */
+.warehouse-transfer-product-info {
+    display: flex;
+    gap: 10px;
+}
+
+/* دکمه + / − */
+.warehouse-transfer-btn-toggle {
+    padding: 2px 8px;
+    background-color: #3498db;
+    color: #fff;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+}
+
+.warehouse-transfer-btn-toggle.remove {
+    background-color: #e74c3c;
+}
+
+
+.warehouse-transfer-btn-toggle:hover {
+    opacity: 0.85;
+}
+
+/* ============================
+   خط جداکننده
+============================ */
+.warehouse-transfer-divider {
+    border: 0;
+    border-top: 2px solid #ccc;
+    margin: 20px 0;
+}
+
+/* ============================
+   انتخاب انبار
+============================ */
+/* بخش انتخاب انبار (ستونی) */
+.warehouse-transfer-from-to {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    /* ستونی کردن */
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.warehouse-transfer-from,
+.warehouse-transfer-to {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 30%;
+    /* پر کردن کل عرض */
+}
+
+/* دکمه انتقال */
+.warehouse-transfer-btn-transfer {
+    width: 100%;
+    /* طول کامل */
+    padding: 10px 0;
+    /* فاصله داخلی عمودی */
+    background-color: #1abc9c;
+    color: #fff;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 15px;
+    transition: all 0.3s;
+    text-align: center;
+    /* متن وسط چین */
+    font-weight: bold;
+}
+
+.warehouse-transfer-btn-transfer:hover {
+    background-color: #16a085;
+}
+
+/* ============================
+   جدول گزارش انتقال
+============================ */
+.warehouse-transfer-table-wrapper {
+    overflow-x: auto;
+    margin-top: 15px;
+}
+
+.warehouse-transfer-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.warehouse-transfer-table th,
+.warehouse-transfer-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: right;
+}
+
+.warehouse-transfer-table th {
+    background-color: #f1f2f6;
+}
+
+.warehouse-transfer-table tbody tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+.warehouse-transfer-table tbody tr:hover {
+    background: #ecf0f1;
+}
+
+/* دکمه‌های جدول */
+.warehouse-transfer-btn-save {
+    background-color: #3498db;
+    color: #fff;
+    border-radius: 6px;
+    border: none;
+    padding: 4px 10px;
+    cursor: pointer;
+}
+
+.warehouse-transfer-btn-save:hover {
+    background-color: #2980b9;
+}
+
+.warehouse-transfer-btn-cancel {
+    background-color: #7f8c8d;
+    color: #fff;
+    border-radius: 6px;
+    border: none;
+    padding: 4px 10px;
+    cursor: pointer;
+}
+
+.warehouse-transfer-btn-cancel:hover {
+    background-color: #707b7c;
+}
+
+/* ============================
+   مودال جزئیات انتقال
+============================ */
+.warehouse-transfer-modal .modal-dialog {
+    direction: rtl;
+}
+
+.warehouse-transfer-modal .modal-content {
+    direction: rtl;
+    text-align: right;
+}
+
+.warehouse-transfer-modal .modal-header,
+.warehouse-transfer-modal .modal-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-direction: row-reverse;
+}
+
+.warehouse-transfer-modal .modal-header .modal-title {
+    flex: 1 1 auto;
+    text-align: center;
+    margin: 0;
+}
+
+.warehouse-transfer-modal .modal-header .btn-close {
+    order: 1;
+    margin: 0;
+}
+
+.warehouse-transfer-modal .modal-footer {
+    justify-content: flex-end;
+}

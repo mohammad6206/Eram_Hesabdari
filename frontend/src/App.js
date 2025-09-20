@@ -29,7 +29,11 @@ import BuyInvoiceList from "./pages/BuyInvoiceList";
 import SellInvoiceList from "./pages/SellInvoiceList";
 import InventoryItem from "./pages/InventoryItem";
 import InventoryOut from "./pages/InventoryOut";
-
+import ProductPakage from "./pages/ProductPakage";
+import WarehouseTransfer from "./pages/WarehouseTransfer";
+import TransportationType from "./pages/TransportationType";
+import DeviceList from "./pages/DeviceList";
+import DeviceGeneration from "./pages/DiviceGeneration";
 function App() {
   return (
     <Routes>
@@ -62,6 +66,11 @@ function App() {
         <Route path="SellInvoiceList" element={<SellInvoiceList />} />
         <Route path="inventory-item" element={<InventoryItem />} />
         <Route path="inventory-out-item" element={<InventoryOut />} />
+        <Route path="product-pakage" element={<ProductPakage />} />
+        <Route path="warehouse-transfer" element={<WarehouseTransfer />} />
+        <Route path="transportation-type" element={<TransportationType />} />
+        <Route path="device-list" element={<DeviceList />} />
+        <Route path="device-generation" element={<DeviceGeneration />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

@@ -11,21 +11,26 @@ import {
   FaLaptop,
   FaUserPlus,
   FaUserTie,
+  FaBoxes,
+  FaTruck,
 } from "react-icons/fa";
 import "../styles/basicinfo.css"; // فایل CSS جدا
 
 function BasicInfo() {
   const buttons = [
-    { label: "خریداران", icon: <FaUserPlus  />, to: "/buyerList" },
-    { label: "تامین‌کنندگان", icon: <FaUserTie  />, to: "/sellerList" },
+    { label: "خریداران", icon: <FaUserPlus />, to: "/buyerList" },
+    { label: "تامین‌کنندگان", icon: <FaUserTie />, to: "/sellerList" },
     { label: "پرسنل", icon: <FaUsers />, to: "/Personnel-list" },
     { label: "تعریف انبار", icon: <FaWarehouse />, to: "/warehouse" },
     { label: "گروه کالا", icon: <FaLayerGroup />, to: "/product-group" },
     { label: "تعریف واحد", icon: <FaBalanceScale />, to: "/unit" },
     { label: "نوع مصرف", icon: <FaFire />, to: "/consumption-type" },
     { label: "تعریف کالا", icon: <FaBoxOpen />, to: "/product" },
-    { label: "تعریف دستگاه" , icon: <FaLaptop   />, to: "/device" },
-    { label: "قطعات دستگاه" , icon: <FaCogs />, to: "/device-part" },
+    { label: "تعریف پک کالا", icon: <FaBoxes />, to: "/product-pakage" },
+    { label: "تعریف نوع حمل و نقل", icon: <FaTruck />, to: "/transportation-type" },
+    { label: "تعریف دستگاه", icon: <FaLaptop />, to: "/device" },
+    { label: "قطعات دستگاه", icon: <FaCogs />, to: "/device-part" },
+
     // { label: "امضا گزارشات", icon: <FaFileSignature />, to: "#" },
     // { label: "ورود کالا از اکسل", icon: <FaFileExcel />, to: "#" },
     // { label: "تعریف رانندگان", icon: <FaTruck />, to: "#" },

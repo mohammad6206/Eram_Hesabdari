@@ -2,19 +2,24 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import {
-  FaBoxOpen,
-  FaWarehouse,
   FaFileInvoice,
   FaFileInvoiceDollar,
+  FaIndustry,
+  FaExchangeAlt,
+  FaArrowCircleUp,
+  FaArrowCircleDown,
+  
 } from "react-icons/fa";
 import "../styles/ProductOperation.css";
 
 function ProductOperation() {
   const buttons = [
-    { label: "فاکتور خرید", icon: FaFileInvoice, to: "/BuyInvoiceList" },
-    { label: "فاکتور فروش", icon: FaFileInvoiceDollar, to: "/SellInvoiceList" },
-    { label: "ورودی انبار", icon: FaBoxOpen, to: "/inventory-item" },
-    { label: "خروجی انبار", icon: FaWarehouse, to: "/inventory-out-item" },
+    { label: "فاکتور خرید کالا", icon: FaFileInvoice, to: "/BuyInvoiceList" },
+    { label: "فاکتور فروش دستگاه", icon: FaFileInvoiceDollar, to: "/SellInvoiceList" },
+    { label: "تولید دستگاه", icon: FaIndustry, to: "/device-list" },
+    { label: "جابه جایی بین انبار", icon: FaExchangeAlt, to: "/warehouse-transfer" },
+    { label: "ورودی انبار", icon:FaArrowCircleDown , to: "/inventory-item" },
+    { label: "خروجی انبار", icon: FaArrowCircleUp, to: "/inventory-out-item" },
   ];
 
   return (
